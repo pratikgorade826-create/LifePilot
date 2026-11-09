@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: lifepilot-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false
+      - key: AI_PROVIDER
+        value: auto
+      - key: BHARATCODE_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
