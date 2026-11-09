@@ -22,6 +22,10 @@ if not exist "%~dp0client\node_modules" (
 echo [*] Attempting local MongoDB service startup if present...
 net start MongoDB >nul 2>&1
 
+echo [*] Freeing ports 5000 and 5173 if in use...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5173 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
+
 echo [*] Starting Backend Server (Port 5000)...
 start "LifePilot Backend" cmd /k "cd /d "%~dp0server" && npm run dev"
 

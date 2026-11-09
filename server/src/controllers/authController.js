@@ -4,7 +4,8 @@ const UserPreference = require('../models/UserPreference');
 const env = require('../config/env');
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, env.JWT_SECRET, {
+  const idStr = id ? (id.toString ? id.toString() : String(id)) : '';
+  return jwt.sign({ id: idStr }, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN
   });
 };
@@ -46,7 +47,7 @@ exports.register = async (req, res, next) => {
       message: 'Account created successfully.',
       token,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,
@@ -93,7 +94,7 @@ exports.login = async (req, res, next) => {
       message: 'Logged in successfully.',
       token,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,
@@ -114,7 +115,7 @@ exports.getMe = async (req, res, next) => {
     res.status(200).json({
       success: true,
       user: {
-        id: user._id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         role: user.role,

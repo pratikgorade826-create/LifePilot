@@ -56,13 +56,14 @@ class LocalDoc {
 
     Object.assign(this, this._data);
 
-    // Ensure _id has toString and equals
+    // Ensure _id is a valid ObjectId with full serialization support
     const idStr = this._data._id;
-    this._id = {
-      toString: () => idStr,
-      equals: (other) => other && (other.toString() === idStr || other === idStr),
-      [Symbol.toPrimitive]: () => idStr
-    };
+    try {
+      this._id = new ObjectId(idStr);
+    } catch (e) {
+      this._id = new ObjectId();
+      this._data._id = this._id.toString();
+    }
   }
 
   get id() {
