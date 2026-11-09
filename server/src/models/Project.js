@@ -75,4 +75,7 @@ const projectSchema = new mongoose.Schema({
 
 projectSchema.index({ ownerId: 1, deadline: 1 });
 
-module.exports = mongoose.model('Project', projectSchema);
+const { wrapModel } = require('./localStore');
+const ProjectModel = mongoose.model('Project', projectSchema);
+module.exports = wrapModel(ProjectModel, 'projects');
+

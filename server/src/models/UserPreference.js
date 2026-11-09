@@ -38,4 +38,7 @@ const userPreferenceSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('UserPreference', userPreferenceSchema);
+const { wrapModel } = require('./localStore');
+const UserPreferenceModel = mongoose.model('UserPreference', userPreferenceSchema);
+module.exports = wrapModel(UserPreferenceModel, 'userpreferences');
+

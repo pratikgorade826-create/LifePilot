@@ -139,3 +139,4 @@ export const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     </aside>
   );
 };
+

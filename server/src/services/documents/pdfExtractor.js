@@ -13,3 +13,4 @@ const extractPdf = async (filePath) => {
 };
 
 module.exports = { extractPdf };
+

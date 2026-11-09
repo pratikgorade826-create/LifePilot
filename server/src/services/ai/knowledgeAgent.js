@@ -138,3 +138,4 @@ Always list source citations at the end of your response.`
 }
 
 module.exports = new KnowledgeAgent();
+

@@ -17,3 +17,4 @@ export const Badge = ({ children, variant = 'primary', className = '' }) => {
     </span>
   );
 };
+

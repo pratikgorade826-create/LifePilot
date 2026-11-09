@@ -448,3 +448,4 @@ export const TripDetails = () => {
     </div>
   );
 };
+

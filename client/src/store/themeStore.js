@@ -15,3 +15,4 @@ export const useThemeStore = create((set) => ({
     document.documentElement.classList.add('dark');
   }
 }));
+

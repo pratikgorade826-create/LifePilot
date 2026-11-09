@@ -79,4 +79,7 @@ const documentSchema = new mongoose.Schema({
 
 documentSchema.index({ ownerId: 1, createdAt: -1 });
 
-module.exports = mongoose.model('Document', documentSchema);
+const { wrapModel } = require('./localStore');
+const DocumentModel = mongoose.model('Document', documentSchema);
+module.exports = wrapModel(DocumentModel, 'documents');
+

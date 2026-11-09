@@ -59,4 +59,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+const { wrapModel } = require('./localStore');
+const UserModel = mongoose.model('User', userSchema);
+module.exports = wrapModel(UserModel, 'users');
+

@@ -35,4 +35,7 @@ const notificationSchema = new mongoose.Schema({
 
 notificationSchema.index({ ownerId: 1, isRead: 1, createdAt: -1 });
 
-module.exports = mongoose.model('Notification', notificationSchema);
+const { wrapModel } = require('./localStore');
+const NotificationModel = mongoose.model('Notification', notificationSchema);
+module.exports = wrapModel(NotificationModel, 'notifications');
+

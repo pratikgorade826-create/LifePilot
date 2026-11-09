@@ -17,3 +17,4 @@ module.exports = {
   UPLOAD_DIR: process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads'),
   MAX_FILE_SIZE_MB: parseInt(process.env.MAX_FILE_SIZE_MB || '15', 10)
 };
+

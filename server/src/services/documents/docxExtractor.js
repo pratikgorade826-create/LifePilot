@@ -11,3 +11,4 @@ const extractDocx = async (filePath) => {
 };
 
 module.exports = { extractDocx };
+

@@ -47,3 +47,4 @@ class DocumentRetriever {
 }
 
 module.exports = new DocumentRetriever();
+

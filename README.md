@@ -414,3 +414,4 @@ RESULTS: 23/23 TESTS PASSED (100%)
 - Real-time flight and hotel booking is deliberately non-functional: All generated travel numbers are labeled as estimates to ensure user safety and compliance.
 - Semantic vector embeddings for document retrieval: Currently utilizes sliding window chunking with keyword and phrase frequency scoring. Upgrading to MongoDB Vector Search with OpenAI/Gemini embeddings can be introduced in a future release.
 - OCR for image-based scanned PDFs: Text-based PDFs and DOCX files extract text directly; scanned images inside PDFs currently require Tesseract OCR enabled.
+

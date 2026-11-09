@@ -12,3 +12,4 @@ export const Card = ({ children, className = '', hover = false, onClick = null }
     </div>
   );
 };
+

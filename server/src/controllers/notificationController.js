@@ -44,3 +44,4 @@ exports.markAllRead = async (req, res, next) => {
     next(error);
   }
 };
+

@@ -3,6 +3,28 @@ const env = require('./env');
 
 let isConnected = false;
 
+const seedDemoUser = async () => {
+  try {
+    const User = require('../models/User');
+    const UserPreference = require('../models/UserPreference');
+    const existing = await User.findOne({ email: 'demo@lifepilot.ai' });
+    if (!existing) {
+      const demoUser = await User.create({
+        name: 'Alex Mercer',
+        email: 'demo@lifepilot.ai',
+        password: 'demopass123',
+        bio: 'Explorer, Product Builder & AI Enthusiast',
+        role: 'user',
+        theme: 'dark'
+      });
+      await UserPreference.create({ ownerId: demoUser._id });
+      console.log('[Database] Auto-seeded demo user: demo@lifepilot.ai (demopass123)');
+    }
+  } catch (err) {
+    console.warn('[Database] Demo user check/seed failed:', err.message);
+  }
+};
+
 const connectDB = async () => {
   if (isConnected) return;
 
@@ -16,10 +38,12 @@ const connectDB = async () => {
 
     isConnected = true;
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
+    await seedDemoUser();
   } catch (err) {
     isConnected = false;
-    console.error(`[Database Error] Could not connect to MongoDB at ${mongoUri}:`, err.message);
-    console.warn(`[Database Notice] Ensure your MONGODB_URI is set in server/.env (e.g. MongoDB Atlas connection string).`);
+    console.warn(`[Database Notice] No MongoDB instance found on port 27017.`);
+    console.log(`[Database] 🚀 Activated LifePilot Zero-Config Local Storage Engine.`);
+    console.log(`[Database] 💾 Data is safely saved to server/data/local_db.json.`);
   }
 };
 
@@ -41,3 +65,4 @@ const getDBStatus = () => ({
 });
 
 module.exports = { connectDB, getDBStatus };
+

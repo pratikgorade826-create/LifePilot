@@ -39,4 +39,7 @@ const documentChunkSchema = new mongoose.Schema({
 documentChunkSchema.index({ documentId: 1, chunkIndex: 1 });
 documentChunkSchema.index({ ownerId: 1, content: 'text' });
 
-module.exports = mongoose.model('DocumentChunk', documentChunkSchema);
+const { wrapModel } = require('./localStore');
+const DocumentChunkModel = mongoose.model('DocumentChunk', documentChunkSchema);
+module.exports = wrapModel(DocumentChunkModel, 'documentchunks');
+

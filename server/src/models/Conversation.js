@@ -31,4 +31,7 @@ const conversationSchema = new mongoose.Schema({
 
 conversationSchema.index({ ownerId: 1, updatedAt: -1 });
 
-module.exports = mongoose.model('Conversation', conversationSchema);
+const { wrapModel } = require('./localStore');
+const ConversationModel = mongoose.model('Conversation', conversationSchema);
+module.exports = wrapModel(ConversationModel, 'conversations');
+

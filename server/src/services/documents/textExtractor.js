@@ -9,3 +9,4 @@ const extractText = async (filePath) => {
 };
 
 module.exports = { extractText };
+

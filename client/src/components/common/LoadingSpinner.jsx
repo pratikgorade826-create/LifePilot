@@ -15,3 +15,4 @@ export const LoadingSpinner = ({ label = 'Loading...', size = 'default' }) => {
     </div>
   );
 };
+

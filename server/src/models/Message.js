@@ -51,4 +51,7 @@ const messageSchema = new mongoose.Schema({
 
 messageSchema.index({ conversationId: 1, createdAt: 1 });
 
-module.exports = mongoose.model('Message', messageSchema);
+const { wrapModel } = require('./localStore');
+const MessageModel = mongoose.model('Message', messageSchema);
+module.exports = wrapModel(MessageModel, 'messages');
+

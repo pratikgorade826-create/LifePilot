@@ -71,4 +71,7 @@ const taskSchema = new mongoose.Schema({
 
 taskSchema.index({ ownerId: 1, status: 1, dueDate: 1 });
 
-module.exports = mongoose.model('Task', taskSchema);
+const { wrapModel } = require('./localStore');
+const TaskModel = mongoose.model('Task', taskSchema);
+module.exports = wrapModel(TaskModel, 'tasks');
+

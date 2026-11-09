@@ -57,7 +57,10 @@ app.get('/api/health', (req, res) => {
     application: 'LifePilot AI Backend',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
-    database: dbStatus,
+    database: {
+      ...dbStatus,
+      engine: dbStatus.connected ? 'mongodb' : 'local-storage'
+    },
     aiProvider: env.AI_PROVIDER
   });
 });
@@ -84,3 +87,4 @@ app.use('*', (req, res) => {
 app.use(errorHandler);
 
 module.exports = app;
+

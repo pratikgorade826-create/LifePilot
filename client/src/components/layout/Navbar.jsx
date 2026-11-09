@@ -89,3 +89,4 @@ export const Navbar = ({ isCollapsed, pageTitle = '' }) => {
     </header>
   );
 };
+

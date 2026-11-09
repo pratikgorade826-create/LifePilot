@@ -359,3 +359,4 @@ export const ProjectDetails = () => {
     </div>
   );
 };
+

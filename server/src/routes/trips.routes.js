@@ -14,3 +14,4 @@ router.put('/:id', tripController.update);
 router.delete('/:id', tripController.delete);
 
 module.exports = router;
+

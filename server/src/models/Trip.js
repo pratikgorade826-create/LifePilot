@@ -120,4 +120,7 @@ const tripSchema = new mongoose.Schema({
 
 tripSchema.index({ ownerId: 1, departureDate: 1 });
 
-module.exports = mongoose.model('Trip', tripSchema);
+const { wrapModel } = require('./localStore');
+const TripModel = mongoose.model('Trip', tripSchema);
+module.exports = wrapModel(TripModel, 'trips');
+
