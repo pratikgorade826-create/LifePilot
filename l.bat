@@ -50,17 +50,13 @@ net start MongoDB >nul 2>&1
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5173 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
 
-:: 8. Launch backend server in the background (minimized)
-echo [*] Starting Backend Server...
-start /min "LifePilot Backend" cmd /c "cd /d "%~dp0server" && npm run dev"
+:: 8. Launch backend & frontend completely hidden in background (NEVER open CMD windows)
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$b = New-Object System.Diagnostics.ProcessStartInfo; $b.FileName = 'cmd.exe'; $b.Arguments = '/c npm run dev'; $b.WorkingDirectory = (Join-Path '%~dp0' 'server'); $b.CreateNoWindow = $true; $b.UseShellExecute = $false; [System.Diagnostics.Process]::Start($b) | Out-Null; " ^
+  "$f = New-Object System.Diagnostics.ProcessStartInfo; $f.FileName = 'cmd.exe'; $f.Arguments = '/c npm run dev'; $f.WorkingDirectory = (Join-Path '%~dp0' 'client'); $f.CreateNoWindow = $true; $f.UseShellExecute = $false; [System.Diagnostics.Process]::Start($f) | Out-Null"
 
-:: 9. Launch frontend client in the background (minimized, no terminal popup)
-echo [*] Starting Frontend Server...
-start /min "LifePilot Frontend" cmd /c "cd /d "%~dp0client" && npm run dev"
-
-:: 10. Wait for Vite server to become active and pop open the browser automatically
-echo [*] Waiting for app to be ready...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$ready = $false; for ($i=0; $i -lt 30; $i++) { try { $r = Invoke-WebRequest -Uri 'http://localhost:5173' -UseBasicParsing -TimeoutSec 1; if ($r.StatusCode -eq 200) { $ready = $true; break } } catch {}; Start-Sleep -Milliseconds 400 }; Start-Process 'http://localhost:5173'"
+:: 9. Directly open the browser (never command prompt)
+start "" "http://localhost:5173"
 
 echo.
 echo ========================================================

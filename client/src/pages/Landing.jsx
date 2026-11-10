@@ -87,9 +87,9 @@ export const Landing = () => {
           <span>Everyday Assistance Hackathon Edition</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-          Think Less. Organize Better.{' '}
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+          <span className="text-[#1f2328]">Think Less. Organize Better.</span>{' '}
+          <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Get Things Done.
           </span>
         </h1>
@@ -138,16 +138,38 @@ export const Landing = () => {
         {/* Unified Flow Explainer */}
         <div className="mt-16 w-full p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-indigo-950/20 to-slate-900/60 border border-indigo-500/20 text-center">
           <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold">The Orchestration Loop</span>
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-4 text-xs sm:text-sm font-semibold text-slate-300">
-            <span className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700">User Natural Request</span>
-            <span className="text-indigo-400">→</span>
-            <span className="px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">AI Intent Detection</span>
-            <span className="text-indigo-400">→</span>
-            <span className="px-3 py-1.5 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30">Specialized AI Workflow</span>
-            <span className="text-indigo-400">→</span>
-            <span className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">Structured Result</span>
-            <span className="text-indigo-400">→</span>
-            <span className="px-3 py-1.5 rounded-lg bg-violet-600 text-white">User Approval & Persistence</span>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-4 text-xs sm:text-sm font-semibold">
+            <span
+              className="px-3.5 py-1.5 rounded-lg border shadow-sm font-semibold"
+              style={{ backgroundColor: '#0f172a', color: '#f8fafc', borderColor: '#334155' }}
+            >
+              User Natural Request
+            </span>
+            <span className="font-bold text-sm" style={{ color: '#cbd5e1' }}>→</span>
+            <span
+              className="px-3.5 py-1.5 rounded-lg border shadow-sm font-semibold"
+              style={{ backgroundColor: '#0f172a', color: '#f8fafc', borderColor: '#334155' }}
+            >
+              AI Intent Detection
+            </span>
+            <span className="font-bold text-sm" style={{ color: '#cbd5e1' }}>→</span>
+            <span
+              className="px-3.5 py-1.5 rounded-lg border shadow-sm font-semibold"
+              style={{ backgroundColor: '#0f172a', color: '#f8fafc', borderColor: '#334155' }}
+            >
+              Specialized AI Workflow
+            </span>
+            <span className="font-bold text-sm" style={{ color: '#cbd5e1' }}>→</span>
+            <span
+              className="px-3.5 py-1.5 rounded-lg border shadow-sm font-semibold"
+              style={{ backgroundColor: '#0f172a', color: '#f8fafc', borderColor: '#334155' }}
+            >
+              Structured Result
+            </span>
+            <span className="font-bold text-sm" style={{ color: '#cbd5e1' }}>→</span>
+            <span className="px-3.5 py-1.5 rounded-lg bg-violet-600 text-white font-semibold shadow-sm">
+              User Approval & Persistence
+            </span>
           </div>
         </div>
       </section>
