@@ -45,7 +45,9 @@ PERSISTENT MONGODB DATABASE RECORD
 
 ### Backend
 - **Runtime:** Node.js (v24+) & Express.js
-- **Database:** MongoDB Atlas & Mongoose ODM
+- **Database Architecture:** Dual Database Architecture:
+  - **Local Use:** Built-in **SQLite3** (`server/data/lifepilot.sqlite3`) for instant, zero-setup, offline local execution.
+  - **Browser & Cloud Deployment:** **MongoDB Atlas** (Mongoose ODM) for cloud-hosted web apps.
 - **Authentication:** JSON Web Tokens (JWT) & bcryptjs (salted password hashing)
 - **Document Processing:** Multer, `pdf-parse` (PDF extraction), `mammoth` (DOCX extraction), text chunking with sliding window & keyword indexing
 - **Logging & Utilities:** Morgan, CORS, Dotenv
