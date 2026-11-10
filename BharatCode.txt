@@ -1,0 +1,270 @@
+================================================================================
+                           LIFEPILOT AI — BHARATCODE HACKATHON
+                    "Think Less. Organize Better. Get Things Done."
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+Project Name        : LifePilot AI
+Tagline             : Think Less. Organize Better. Get Things Done.
+Category            : Everyday Assistance
+Repository          : https://github.com/pratikgorade826-create/LifePilot
+Active Branches     : pratik, yash, main
+Primary AI Provider : BharatCode API (configured Qwen model)
+Fallback AI Provider: Google Gemini API (gemini-2.5-flash / gemini-3.5-flash-lite)
+Offline Resilience  : LifePilot Zero-Config Local Storage Engine (auto-fallback)
+
+
+2. PROBLEM STATEMENT & SOLUTION
+--------------------------------------------------------------------------------
+Everyday personal productivity is heavily fragmented across disconnected flight/hotel
+booking engines, isolated spreadsheet budgets, static note apps, and complex project
+trackers. Users waste hours manually bridging the gap between planning and execution.
+
+LifePilot AI unifies smart travel planning, autonomous project roadmaps, and document
+intelligence under one central AI orchestration engine. Powered by BharatCode API, it
+transforms natural language requests into structured, actionable workflows with
+evidence-based citations, 8-category budget optimization, what-if simulations, and
+collaborative group decision-making.
+
+
+3. CORE MODULES & FEATURES
+--------------------------------------------------------------------------------
+
+[FEATURE 1: SMART TRAVEL PLANNING & GROUP COLLABORATION]
+- AI Multi-Day Itinerary Generator:
+  Creates personalized daily schedules with morning, afternoon, and evening
+  activities, transit times, dining recommendations (breakfast, lunch, dinner),
+  accommodation targets, activity costs, and preparation checklists.
+  Supports dietary choices (Vegetarian, Vegan, Halal, Jain), transport modes
+  (Flights, Trains, Roadtrips, Public Transit), and accessibility requirements.
+
+- Single-Day AI Regenerator:
+  Regenerates individual days on-demand with custom AI prompts or 1-click presets:
+  * Rain-Safe Indoor Day (museums, galleries, covered markets, cozy cafes)
+  * Chill & Relaxed Pace (late brunch, beach relaxation, scenic sunset views)
+  * Cultural Immersion (historic colonial architecture, artisan workshops)
+  * Budget-Friendly Day (free heritage walks, public gardens, street food)
+
+- Smart 8-Category Budget Optimizer:
+  Tracks Transportation, Accommodation, Food, Activities, Shopping, Local Transport,
+  Emergency, and Miscellaneous. Features overspending detection, per-person calculations,
+  and AI cost-cutting recommendations visualized via interactive Recharts.
+
+- Interactive Travel Map & Route Optimization:
+  Category-based place markers (attractions, stays, restaurants), automatic proximity
+  clustering to minimize transit times, and 1-click route optimization.
+
+- What-If Trip Simulator (Core Differentiating Feature):
+  Models hypothetical scenarios ("Extend to 7 days", "Cut budget to ₹10k/person",
+  "What if it rains on Day 2?", "Add 2 friends"). Features side-by-side comparison
+  (Original vs Scenario A vs Scenario B) with delta metrics, feasibility scoring,
+  risk analysis, 1-click apply, and 1-click restore from automatic backups.
+
+- Context-Aware AI Travel Companion:
+  Conversational trip assistant with persistent chat history. Understands the current
+  itinerary and proposes structured modifications with change preview approval cards.
+
+- Group Trip Collaboration:
+  * Unique 6-character invite codes (e.g. LPT-GOA26) and instant join workflows.
+  * Role-Based Access Control (Owner, Editor, Viewer).
+  * Group Voting & Polls with duplicate vote prevention and live percentage bars.
+  * Splitwise-style Shared Group Expenses with a Greedy Bilateral Settlement
+    Engine that minimizes cross-member debt settlement transactions.
+  * Collaborative Task Duties & chronological real-time activity audit feed.
+
+[FEATURE 2: ADVANCED AI PERSONAL KNOWLEDGE HUB]
+- Document Upload Center:
+  Supports PDF, DOCX (via Mammoth), and TXT files with client/server validation,
+  upload progress indicators, and automatic chunking/indexing.
+
+- AI Document Summarizer:
+  Generates executive summaries, chapter-wise breakdowns, key findings, and
+  extracted dates/entities.
+
+- Evidence-Based Single & Multi-Document Q&A:
+  Answers queries citing verified source chunks and page numbers. Prevents
+  hallucinations and supports cross-document synthesis.
+
+- AI Study Assistant:
+  Generates multiple-choice questions (MCQs), flashcards, study notes, structured
+  revision schedules, and provides automated grading of user answers (0-100 score).
+
+- Research Paper Analyzer & Knowledge Graph Visualizer:
+  Extracts hypotheses, methodology, results, and limitations; visualizes entity nodes
+  and relationship edges.
+
+- Knowledge-to-Action Integration:
+  Converts extracted document checklist items directly into LifePilot task records
+  and extracted project roadmaps into actionable milestone projects.
+
+[FEATURE 3: AI PROJECT ROADMAPS & KANBAN EXECUTION]
+- Idea-to-Roadmap Generator:
+  Decomposes natural language objectives into milestone timelines, tasks, complexity
+  scores, and signoff checklists.
+
+- Interactive Kanban Board:
+  Drag-and-drop task workflow (Todo, In Progress, Done) with priority tags,
+  deadlines, and category filters.
+
+[FEATURE 4: CENTRAL AI INTENT ORCHESTRATOR]
+- Analyzes user natural language input and classifies intent into TRAVEL, PROJECT,
+  KNOWLEDGE, or TASK workflows.
+- Human-in-the-loop approval mechanism: AI outputs structured change proposals,
+  requiring explicit user confirmation before database persistence.
+
+[FEATURE 5: ZERO-CONFIG DESKTOP LAUNCHER & RESILIENCE]
+- Zero-CMD Launcher (`l.bat`): Launches backend and frontend completely headlessly
+  without terminal popups and directly opens the browser to http://localhost:5173.
+- Dual Database Persistence: Operates seamlessly on MongoDB Atlas, with automatic
+  failover to a local JSON/SQLite engine for offline demos.
+
+
+4. TECHNOLOGY STACK
+--------------------------------------------------------------------------------
+Frontend:
+  - React.js 18 + Vite (ESM)
+  - Tailwind CSS + Warm Theme Palette (#feffdf, #ffe79a, #ffa952, #ef5a5a)
+  - Zustand (State Management)
+  - Recharts (Interactive Budget & Expense Visualizations)
+  - Lucide React (Icons)
+  - React Router DOM v6
+  - Axios (HTTP Client)
+
+Backend:
+  - Node.js + Express.js
+  - MongoDB + Mongoose (Atlas / Local)
+  - LifePilot LocalStore (Offline JSON/SQLite Persistence Engine)
+  - JWT Authentication + Bcryptjs Password Hashing
+  - Multer (File Upload Handling)
+  - Mammoth (.docx extraction) + PDF Text Extraction
+  - Express Rate Limiting & Helmet Security Headers
+
+AI Integration:
+  - Primary : BharatCode API (Base URL: https://bharatcode.ai/api/model/v1)
+  - Fallback: Google Gemini API (gemini-2.5-flash / gemini-3.5-flash-lite)
+  - Offline : Deterministic Local Heuristics & Schema Fallbacks
+
+
+5. REST API ARCHITECTURE
+--------------------------------------------------------------------------------
+Authentication:
+  POST   /api/auth/register               - Register new user
+  POST   /api/auth/login                  - Authenticate and receive JWT
+  GET    /api/auth/me                     - Current user profile
+
+Smart Travel & Group Collaboration:
+  POST   /api/trips/generate              - Generate AI multi-day itinerary
+  GET    /api/trips                       - List user trips
+  GET    /api/trips/:id                   - Trip details
+  PUT    /api/trips/:id                   - Update trip
+  DELETE /api/trips/:id                   - Delete trip
+  POST   /api/trips/join                  - Join group trip via invite code
+  POST   /api/trips/:id/regenerate-day    - AI regenerate individual day
+  GET    /api/trips/:id/budget            - Get 8-category budget
+  POST   /api/trips/:id/optimize-budget   - Optimize budget & get alternatives
+  POST   /api/trips/:id/scenarios         - Create What-If simulation scenario
+  GET    /api/trips/:id/scenarios         - List scenarios
+  POST   /api/trips/:id/scenarios/compare - Compare multiple scenarios
+  POST   /api/trips/:id/scenarios/:sId/apply - Apply scenario to live itinerary
+  POST   /api/trips/:id/scenarios/restore-original - Restore original itinerary
+  POST   /api/trips/:id/invitations       - Generate unique invite code
+  GET    /api/trips/:id/members           - List trip members
+  PUT    /api/trips/:id/members/:mId      - Update member role
+  DELETE /api/trips/:id/members/:mId      - Remove member from trip
+  POST   /api/trips/:id/polls             - Create group voting poll
+  GET    /api/trips/:id/polls             - List polls
+  POST   /api/trips/:id/polls/:pId/vote   - Cast vote in poll
+  PUT    /api/trips/:id/polls/:pId/close  - Close poll & tally winner
+  POST   /api/trips/:id/group-expenses    - Add shared group expense
+  GET    /api/trips/:id/group-expenses    - List group expenses
+  GET    /api/trips/:id/settlements       - Get bilateral debt settlements
+  POST   /api/trips/:id/settlements/settle- Mark debt settled
+  POST   /api/trips/:id/tasks             - Create collaborative trip task
+  GET    /api/trips/:id/tasks             - List trip tasks
+  GET    /api/trips/:id/activity          - Get real-time activity audit feed
+  POST   /api/trips/:id/assistant/chat    - AI Companion chat with itinerary context
+  GET    /api/trips/:id/assistant/history - AI Companion chat history
+
+Knowledge Hub:
+  POST   /api/documents/upload            - Upload PDF, DOCX, or TXT
+  GET    /api/documents                   - List uploaded documents
+  GET    /api/documents/:id               - Get document with chunks
+  POST   /api/documents/:id/summarize     - AI document summary
+  POST   /api/documents/:id/ask           - Evidence-based single document Q&A
+  POST   /api/documents/multi-ask         - Multi-document intelligence Q&A
+  POST   /api/documents/compare           - Multi-document comparison & differences
+  POST   /api/documents/:id/study/generate- Generate MCQs, flashcards & study notes
+  POST   /api/documents/:id/study/evaluate- Evaluate student answers
+  GET    /api/documents/:id/research-analysis - Research paper analysis
+  GET    /api/documents/:id/knowledge-graph   - Entity-relationship knowledge graph
+  POST   /api/documents/:id/convert-action    - Convert extracted action to task
+  POST   /api/documents/:id/convert-project   - Convert extracted roadmap to project
+
+Projects & Tasks:
+  POST   /api/projects/generate           - Generate AI project roadmap
+  GET    /api/projects                    - List projects
+  GET    /api/projects/:id                - Project details & milestones
+  POST   /api/tasks                       - Create task
+  GET    /api/tasks                       - List tasks with status filter
+  PATCH  /api/tasks/:id/status            - Update Kanban task status
+
+Orchestrator:
+  POST   /api/ai/chat                     - Central intent classification & routing
+  POST   /api/ai/action/approve           - Execute confirmed AI proposals
+
+
+6. VERIFICATION & TEST METRICS
+--------------------------------------------------------------------------------
+1. Smart Travel Planner Master Suite (`server/test_smart_travel_planner.js`):
+   - 11/11 TESTS PASSED (100%)
+   - Covers Trip Generation, Day Regeneration, 8-Category Budget Optimizer,
+     Attraction Proximity Clustering, What-If Simulation Engine, Group Polls,
+     Bilateral Debt Settlement Algorithm, Duty Checklists, and Companion Chat.
+
+2. LifePilot Verification Suite (`server/src/test_suite.js`):
+   - 23/23 TESTS PASSED (100%)
+   - Covers Intent Classification, Travel Agent, Project Agent, Knowledge Agent,
+     Bcrypt hashing, and JWT tokens.
+
+3. Knowledge Hub Test Suite (`server/test_knowledge_hub.js`):
+   - 11/11 TESTS PASSED (100%)
+   - Covers Chunking, Summarization, Q&A Citations, Multi-Doc Synthesis,
+     Study Quiz Generation, Answer Evaluator, and Action-to-Task Conversion.
+
+4. Frontend Vite Production Build:
+   - 100% SUCCESSFUL (zero bundling or compilation errors).
+
+
+7. TEAM MEMBERS
+--------------------------------------------------------------------------------
+1. Pratik Gorade   - Full Stack & AI Architecture
+2. Avnish Choudhari - Backend & Travel Services
+3. Aditya Somase   - AI Models & Knowledge Services
+4. Aneesh Pande    - UI/UX Design & Frontend Integration
+5. Yash Salunke    - Testing, Database & Deployment
+
+
+8. QUICK START INSTRUCTIONS
+--------------------------------------------------------------------------------
+1. Clone the repository:
+   git clone https://github.com/pratikgorade826-create/LifePilot.git
+   cd LifePilot
+
+2. Direct Browser Launch (Windows):
+   Double-click or run `.\l.bat` in your terminal.
+   - Automatically initializes environment variables (.env).
+   - Starts backend and frontend in the background headlessly (no CMD popups).
+   - Directly opens your default browser at http://localhost:5173.
+
+3. Demo Account Credentials:
+   - Email   : demo@lifepilot.ai
+   - Password: demopass123
+
+4. Manual Launch (Cross-Platform):
+   - Backend : cd server && npm install && npm run dev (Port 5000)
+   - Frontend: cd client && npm install && npm run dev (Port 5173)
+
+================================================================================
+                           END OF SUBMISSION DOCUMENT
+================================================================================

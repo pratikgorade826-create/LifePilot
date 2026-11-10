@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --first-color: #feffdf;
+  --second-color: #ffe79a;
+  --third-color: #ffa952;
+  --fourth-color: #ef5a5a;
+  --text-primary: #1f2328;
+  --text-muted: #4b5563;
+}
+
+@layer base {
+  body {
+    background-color: #feffdf !important;
+    color: #1f2328 !important;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Explicit Palette Utility Classes */
+.first-color { 
+  background-color: #feffdf !important; 
+}
+
+.second-color { 
+  background-color: #ffe79a !important; 
+}
+
+.third-color { 
+  background-color: #ffa952 !important; 
+}
+
+.fourth-color { 
+  background-color: #ef5a5a !important; 
+}
+
+/* Base App Background (.first-color: #feffdf) */
+.bg-\[\#0B0F19\],
+.bg-\[\#0B0F19\]\/90,
+.bg-background,
+body,
+#root {
+  background-color: #feffdf !important;
+  color: #1f2328 !important;
+}
+
+/* Sidebar, Header, Panels & Card Surfaces (.second-color: #ffe79a) */
+aside.bg-\[\#0E131F\],
+header.bg-\[\#0B0F19\]\/90,
+.bg-\[\#0E131F\],
+.bg-\[\#111827\],
+.bg-\[\#1F2937\],
+.bg-\[\#151D30\],
+.bg-slate-900,
+.bg-slate-800,
+.bg-slate-800\/50,
+.bg-slate-800\/60,
+.bg-slate-800\/80 {
+  background-color: #ffe79a !important;
+  color: #1f2328 !important;
+  border-color: rgba(255, 169, 82, 0.45) !important;
+}
+
+/* Borders in theme tone (.third-color: #ffa952) */
+.border-slate-800,
+.border-slate-800\/80,
+.border-slate-700,
+.border-slate-700\/80,
+.border-slate-600 {
+  border-color: rgba(255, 169, 82, 0.45) !important;
+}
+
+/* Primary Action Buttons, Brand Icons & Badges (.third-color & .fourth-color) */
+.bg-gradient-to-tr.from-indigo-600.via-indigo-500.to-violet-500,
+.bg-gradient-to-r.from-indigo-600.to-violet-600,
+.bg-gradient-to-tr.from-indigo-500.to-violet-600,
+.bg-indigo-600,
+.bg-violet-600,
+.bg-primary-600 {
+  background: linear-gradient(135deg, #ffa952 0%, #ef5a5a 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+button.bg-slate-800 {
+  background-color: #ffa952 !important;
+  color: #1f2328 !important;
+  border-color: #ffa952 !important;
+  font-weight: 600 !important;
+}
+
+button.bg-slate-800:hover {
+  background-color: #ef5a5a !important;
+  color: #ffffff !important;
+}
+
+/* Active navigation items in sidebar */
+a.active,
+.nav-active {
+  background: #ffa952 !important;
+  color: #1f2328 !important;
+  border-color: #ef5a5a !important;
+  font-weight: 700 !important;
+}
+
+a.active svg {
+  color: #ef5a5a !important;
+}
+
+/* High-contrast Text Readability */
+.text-slate-100,
+.text-slate-200,
+.text-slate-300 {
+  color: #1f2328 !important;
+}
+
+.text-slate-400,
+.text-slate-500 {
+  color: #4b5563 !important;
+}
+
+.text-indigo-400,
+.text-violet-400,
+.text-purple-400 {
+  color: #ef5a5a !important;
+}
+
+/* Form Controls & Inputs */
+input, textarea, select {
+  background-color: #ffffff !important;
+  color: #1f2328 !important;
+  border-color: #ffa952 !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Custom scrollbars */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 169, 82, 0.4);
+  border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #ef5a5a;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
