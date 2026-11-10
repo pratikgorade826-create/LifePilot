@@ -72,7 +72,72 @@ const documentSchema = new mongoose.Schema({
     priority: { type: String, default: 'Medium' },
     deadline: { type: String, default: '' },
     convertedToTask: { type: Boolean, default: false }
-  }]
+  }],
+  chapterSummaries: [{
+    title: { type: String, required: true },
+    summary: { type: String, required: true },
+    keyPoints: [{ type: String }]
+  }],
+  studyMaterials: {
+    mcqs: [{
+      question: { type: String, required: true },
+      options: [{ type: String, required: true }],
+      answer: { type: Number, required: true },
+      explanation: { type: String, default: '' }
+    }],
+    flashcards: [{
+      front: { type: String, required: true },
+      back: { type: String, required: true },
+      category: { type: String, default: 'General' }
+    }],
+    descriptiveQuestions: [{
+      question: { type: String, required: true },
+      modelAnswer: { type: String, default: '' },
+      points: [{ type: String }]
+    }],
+    studyNotes: [{
+      topic: { type: String, required: true },
+      notes: { type: String, required: true },
+      keyTakeaways: [{ type: String }]
+    }],
+    revisionPlan: [{
+      day: { type: Number, required: true },
+      focusTopic: { type: String, required: true },
+      tasks: [{ type: String }],
+      durationMinutes: { type: Number, default: 45 }
+    }]
+  },
+  researchAnalysis: {
+    abstractSummary: { type: String, default: '' },
+    methodology: { type: String, default: '' },
+    keyResults: { type: String, default: '' },
+    criticalEvaluation: { type: String, default: '' },
+    limitations: { type: String, default: '' },
+    practicalApplications: [{ type: String }]
+  },
+  knowledgeGraph: {
+    nodes: [{
+      id: { type: String, required: true },
+      label: { type: String, required: true },
+      type: { type: String, default: 'concept' }
+    }],
+    edges: [{
+      from: { type: String, required: true },
+      to: { type: String, required: true },
+      relationship: { type: String, default: 'relates_to' }
+    }]
+  },
+  extractedProjectRoadmap: {
+    projectName: { type: String, default: '' },
+    description: { type: String, default: '' },
+    category: { type: String, default: 'Development' },
+    milestones: [{
+      title: { type: String, required: true },
+      description: { type: String, default: '' },
+      tasks: [{ type: String }]
+    }],
+    convertedToProject: { type: Boolean, default: false }
+  }
 }, {
   timestamps: true
 });

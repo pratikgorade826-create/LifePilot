@@ -480,6 +480,11 @@ class LocalStore {
         return new LocalDoc(removed, colName, self);
       },
 
+      async deleteOne(query) {
+        const doc = await this.findOneAndDelete(query);
+        return { deletedCount: doc ? 1 : 0, acknowledged: true };
+      },
+
       async findByIdAndDelete(id) {
         return this.findOneAndDelete({ _id: id ? id.toString() : null });
       },

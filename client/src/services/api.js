@@ -94,11 +94,20 @@ export const documentsAPI = {
   upload: (formData) => api.post('/documents/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  getAll: () => api.get('/documents'),
+  getAll: (search = '') => api.get(search ? `/documents?search=${encodeURIComponent(search)}` : '/documents'),
   getOne: (id) => api.get(`/documents/${id}`),
+  searchAll: (q) => api.get(`/documents/search?q=${encodeURIComponent(q)}`),
   summarize: (id) => api.post(`/documents/${id}/summarize`),
-  ask: (id, question) => api.post(`/documents/${id}/ask`, { question }),
+  ask: (id, question, history = []) => api.post(`/documents/${id}/ask`, { question, history }),
+  multiAsk: (documentIds, question) => api.post('/documents/multi-ask', { documentIds, question }),
+  compare: (documentIds) => api.post('/documents/compare', { documentIds }),
+  generateStudy: (id, type = 'all') => api.post(`/documents/${id}/study/generate`, { type }),
+  evaluateAnswer: (id, question, modelAnswer, userAnswer) => api.post(`/documents/${id}/study/evaluate`, { question, modelAnswer, userAnswer }),
+  getResearchAnalysis: (id, refresh = false) => api.get(`/documents/${id}/research-analysis${refresh ? '?refresh=true' : ''}`),
+  getKnowledgeGraph: (id, refresh = false) => api.get(`/documents/${id}/knowledge-graph${refresh ? '?refresh=true' : ''}`),
   convertAction: (id, actionIndex) => api.post(`/documents/${id}/convert-action`, { actionIndex }),
+  convertAllActions: (id) => api.post(`/documents/${id}/convert-all-actions`),
+  convertProject: (id, payload = {}) => api.post(`/documents/${id}/convert-project`, payload),
   delete: (id) => api.delete(`/documents/${id}`)
 };
 

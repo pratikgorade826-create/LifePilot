@@ -4,6 +4,8 @@ build/
 .env
 uploads/*
 !uploads/.gitkeep
+server/uploads/*
+!server/uploads/.gitkeep
 .DS_Store
 *.log
 npm-debug.log*

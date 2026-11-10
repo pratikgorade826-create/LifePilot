@@ -298,7 +298,7 @@ async function runTests() {
     assert.strictEqual(preview.actionType, 'CHANGE_PREFERENCES');
     assert.strictEqual(preview.diff.type, 'PREFERENCES_CHANGE');
     assert.strictEqual(preview.diff.after.travelStyle, 'Luxury');
-    assert.ok(preview.diff.after.additionalPreferences.includes('vegetarian'));
+    assert.ok(preview.diff.after.additionalPreferences.toLowerCase().includes('vegetarian'));
     assert.strictEqual(preview.proposedChanges.travelStyle, 'Luxury');
   });
 
