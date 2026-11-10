@@ -79,30 +79,42 @@ class AIProvider {
     const systemMsg = messages.find(m => m.role === 'system');
     const systemInstruction = systemMsg ? { parts: [{ text: systemMsg.content }] } : undefined;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiKey}`;
+    const candidateModels = ['gemini-3.5-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
+    let lastErr = null;
 
-    const body = {
-      contents,
-      generationConfig: {
-        temperature: options.temperature || 0.7,
-        maxOutputTokens: options.max_tokens || 2048
+    for (const modelName of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${this.geminiKey}`;
+        const body = {
+          contents,
+          generationConfig: {
+            temperature: options.temperature || 0.7,
+            maxOutputTokens: options.max_tokens || 2048
+          }
+        };
+        if (systemInstruction) body.systemInstruction = systemInstruction;
+
+        const res = await axios.post(url, body, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 25000
+        });
+
+        const candidate = res.data?.candidates?.[0];
+        const text = candidate?.content?.parts?.[0]?.text || '';
+
+        return {
+          content: text,
+          provider: 'gemini',
+          model: modelName,
+          isDemoOutput: false
+        };
+      } catch (err) {
+        lastErr = err;
+        console.warn(`[AIProvider] Gemini model ${modelName} failed (${err.response?.status || err.message}), trying next candidate...`);
       }
-    };
-    if (systemInstruction) body.systemInstruction = systemInstruction;
+    }
 
-    const res = await axios.post(url, body, {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 30000
-    });
-
-    const candidate = res.data?.candidates?.[0];
-    const text = candidate?.content?.parts?.[0]?.text || '';
-
-    return {
-      content: text,
-      provider: 'gemini',
-      isDemoOutput: false
-    };
+    throw lastErr || new Error('All Gemini models failed.');
   }
 
   async generateDemoChat(messages, options = {}) {
