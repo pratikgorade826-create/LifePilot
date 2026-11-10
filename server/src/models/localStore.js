@@ -172,6 +172,12 @@ class LocalStore {
       users: [],
       userpreferences: [],
       trips: [],
+      tripscenarios: [],
+      trippolls: [],
+      tripexpenses: [],
+      triptasks: [],
+      tripactivities: [],
+      travelconversations: [],
       projects: [],
       tasks: [],
       documents: [],
@@ -189,6 +195,19 @@ class LocalStore {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
         this.data = { ...this.data, ...parsed };
+        // Ensure new collections exist
+        ['tripscenarios', 'trippolls', 'tripexpenses', 'triptasks', 'tripactivities', 'travelconversations'].forEach(k => {
+          if (!this.data[k]) this.data[k] = [];
+        });
+        if (this.data.trips && this.data.trips.length > 0 && !this.data.trips[0].inviteCode) {
+          this.data.trips[0].inviteCode = 'LPT-GOA26';
+          this.data.trips[0].members = [
+            { userId: '663e10000000000000000001', name: 'Alex Mercer', email: 'demo@lifepilot.ai', role: 'owner', joinedAt: new Date().toISOString() },
+            { userId: '663e10000000000000000002', name: 'Rohan Sharma', email: 'rohan@example.com', role: 'editor', joinedAt: new Date().toISOString() },
+            { userId: '663e10000000000000000003', name: 'Sneha Patel', email: 'sneha@example.com', role: 'viewer', joinedAt: new Date().toISOString() }
+          ];
+          this.persist();
+        }
       } else {
         this.seedInitial();
         this.persist();
@@ -298,8 +317,149 @@ class LocalStore {
           { task: 'Confirm resort check-in timing', checked: false }
         ],
         isAiGenerated: true,
+        inviteCode: 'LPT-GOA26',
+        members: [
+          { userId: demoId, name: 'Alex Mercer', email: 'demo@lifepilot.ai', role: 'owner', joinedAt: new Date().toISOString() },
+          { userId: '663e10000000000000000002', name: 'Rohan Sharma', email: 'rohan@example.com', role: 'editor', joinedAt: new Date().toISOString() },
+          { userId: '663e10000000000000000003', name: 'Sneha Patel', email: 'sneha@example.com', role: 'viewer', joinedAt: new Date().toISOString() }
+        ],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
+      }
+    ];
+
+    this.data.tripscenarios = [
+      {
+        _id: '663e70000000000000000001',
+        tripId: '663e30000000000000000001',
+        ownerId: demoId,
+        name: '7-Day Extended Goa Getaway',
+        scenarioQuery: 'Extend the trip to 7 days with water adventure sports',
+        originalBudget: 60000,
+        proposedBudget: 78000,
+        costDifference: 18000,
+        costPerPerson: 19500,
+        originalDuration: 5,
+        proposedDuration: 7,
+        addedActivities: ['Grand Island Snorkeling & Scuba', 'Dudhsagar Waterfall Jeep Safari'],
+        removedActivities: [],
+        warnings: ['Increased weekend tariff for beachfront resort on Days 6 & 7'],
+        advantages: ['Adds South Goa wilderness and marine diving', 'Allows unhurried coastal relaxation'],
+        disadvantages: ['Additional budget requirement of ₹4,500/person'],
+        feasibility: 'highly_feasible',
+        feasibilityScore: 92,
+        isApplied: false,
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    this.data.trippolls = [
+      {
+        _id: '663e80000000000000000001',
+        tripId: '663e30000000000000000001',
+        creatorId: demoId,
+        creatorName: 'Alex Mercer',
+        title: 'Which sunset beach dinner spot should we book for Day 2?',
+        category: 'restaurant',
+        status: 'open',
+        options: [
+          {
+            text: 'Curlies Beach Shack (Anjuna)',
+            votes: [{ userId: demoId, userName: 'Alex Mercer', votedAt: new Date().toISOString() }]
+          },
+          {
+            text: 'Thalassa Greek Taverna (Siolim)',
+            votes: [{ userId: '663e10000000000000000002', userName: 'Rohan Sharma', votedAt: new Date().toISOString() }]
+          },
+          {
+            text: 'Pousada By The Beach (Calangute)',
+            votes: []
+          }
+        ],
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    this.data.tripexpenses = [
+      {
+        _id: '663e90000000000000000001',
+        tripId: '663e30000000000000000001',
+        title: 'Calangute Beach Villa Advance Payment',
+        category: 'Accommodation',
+        amount: 24000,
+        paidBy: { userId: demoId, userName: 'Alex Mercer' },
+        splitType: 'equal',
+        participants: [
+          { userId: demoId, userName: 'Alex Mercer', shareAmount: 6000, isSettled: true },
+          { userId: '663e10000000000000000002', userName: 'Rohan Sharma', shareAmount: 6000, isSettled: false },
+          { userId: '663e10000000000000000003', userName: 'Sneha Patel', shareAmount: 6000, isSettled: false },
+          { userId: '663e10000000000000000004', userName: 'Vikram Joshi', shareAmount: 6000, isSettled: false }
+        ],
+        expenseDate: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      },
+      {
+        _id: '663e90000000000000000002',
+        tripId: '663e30000000000000000001',
+        title: 'Airport Taxi Transfer & Tolls',
+        category: 'Transportation',
+        amount: 4000,
+        paidBy: { userId: '663e10000000000000000002', userName: 'Rohan Sharma' },
+        splitType: 'equal',
+        participants: [
+          { userId: demoId, userName: 'Alex Mercer', shareAmount: 1000, isSettled: false },
+          { userId: '663e10000000000000000002', userName: 'Rohan Sharma', shareAmount: 1000, isSettled: true },
+          { userId: '663e10000000000000000003', userName: 'Sneha Patel', shareAmount: 1000, isSettled: false },
+          { userId: '663e10000000000000000004', userName: 'Vikram Joshi', shareAmount: 1000, isSettled: false }
+        ],
+        expenseDate: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    this.data.triptasks = [
+      {
+        _id: '663ea0000000000000000001',
+        tripId: '663e30000000000000000001',
+        title: 'Book Mumbai to Goa Train/Flight Tickets',
+        category: 'Booking',
+        assignedTo: { userId: demoId, userName: 'Alex Mercer' },
+        deadline: new Date(Date.now() + 86400000 * 2).toISOString(),
+        status: 'completed',
+        priority: 'Urgent',
+        createdAt: new Date().toISOString()
+      },
+      {
+        _id: '663ea0000000000000000002',
+        tripId: '663e30000000000000000001',
+        title: 'Confirm self-drive car rental at Dabolim Airport',
+        category: 'Preparation',
+        assignedTo: { userId: '663e10000000000000000002', userName: 'Rohan Sharma' },
+        deadline: new Date(Date.now() + 86400000 * 4).toISOString(),
+        status: 'pending',
+        priority: 'High',
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    this.data.tripactivities = [
+      {
+        _id: '663eb0000000000000000001',
+        tripId: '663e30000000000000000001',
+        userId: demoId,
+        userName: 'Alex Mercer',
+        action: 'MEMBER_JOINED',
+        details: 'Alex Mercer created the trip "5-Day Goa Beach & Heritage Trip"',
+        createdAt: new Date().toISOString()
+      },
+      {
+        _id: '663eb0000000000000000002',
+        tripId: '663e30000000000000000001',
+        userId: '663e10000000000000000002',
+        userName: 'Rohan Sharma',
+        action: 'MEMBER_JOINED',
+        details: 'Rohan Sharma joined the trip via invite code LPT-GOA26',
+        createdAt: new Date().toISOString()
       }
     ];
 

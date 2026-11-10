@@ -422,6 +422,120 @@ Provide a complete day-by-day itinerary with 3 scheduled activities per day (tim
       preparationChecklist
     };
   }
+
+  /**
+   * Regenerate a single specific day in an existing itinerary
+   */
+  async regenerateDay({ trip, dayNumber, preferences = '', feedback = '' }) {
+    if (!trip) throw new Error('Trip context is required.');
+    const dayNum = parseInt(dayNumber, 10);
+    if (!dayNum || dayNum < 1 || dayNum > (trip.itinerary?.length || 10)) {
+      throw new Error(`Invalid day number: ${dayNumber}.`);
+    }
+
+    const currentDay = (trip.itinerary || []).find(d => d.day === dayNum) || {};
+    const destination = trip.destination || 'Destination';
+    const activeProvider = aiProvider.getActiveProvider();
+
+    if (activeProvider !== 'demo') {
+      try {
+        const prompt = `Current Trip: "${trip.name || destination}", Destination: "${destination}", Style: "${trip.travelStyle || 'Standard'}".
+Current Day ${dayNum} Plan:
+Title: ${currentDay.title}
+Theme: ${currentDay.theme}
+Activities: ${(currentDay.activities || []).map(a => a.title).join(', ')}
+
+User Request for Day ${dayNum}:
+Feedback/Adjustment: "${feedback || 'Provide a fresh alternative set of activities'}"
+Preferences: "${preferences || trip.additionalPreferences || ''}"
+
+Generate a fresh, highly engaging replacement schedule for Day ${dayNum}.`;
+
+        const messages = [
+          { role: 'system', content: promptTemplates.DAY_REGENERATOR },
+          { role: 'user', content: prompt }
+        ];
+
+        const res = await aiProvider.generateChat(messages, { temperature: 0.5, json: true });
+        const parsed = aiProvider.safeParseJson(res.content);
+        if (parsed && Array.isArray(parsed.activities) && parsed.activities.length > 0) {
+          const regenerated = {
+            day: dayNum,
+            title: parsed.title || `Day ${dayNum}: Refreshed ${destination} Highlights`,
+            theme: parsed.theme || `Tailored Day ${dayNum} Experience`,
+            activities: parsed.activities.map((a, i) => ({
+              time: a.time || (i === 0 ? '09:30 AM' : i === 1 ? '02:30 PM' : '07:00 PM'),
+              title: a.title || `Activity ${i + 1}`,
+              description: a.description || `Explore ${destination}`,
+              location: a.location || destination,
+              estimatedCost: typeof a.estimatedCost === 'number' ? Math.max(0, a.estimatedCost) : 300
+            })),
+            meals: parsed.meals || currentDay.meals || { breakfast: 'Local specialty cafe', lunch: 'Regional lunch', dinner: 'Fine evening dining' },
+            stay: parsed.stay || currentDay.stay || `${trip.travelStyle || 'Standard'} accommodation in ${destination}`
+          };
+
+          return {
+            success: true,
+            day: regenerated,
+            explanation: parsed.explanation || `Day ${dayNum} refreshed with new activities tailored to your preferences.`,
+            isDemoOutput: res.isDemoOutput,
+            provider: res.provider
+          };
+        }
+      } catch (err) {
+        console.warn('[TravelAgent] Day regeneration failed with AI, using intelligent fallback:', err.message);
+      }
+    }
+
+    // Intelligent fallback for regenerating a single day
+    const feedbackLower = (feedback + ' ' + preferences).toLowerCase();
+    let theme = `Day ${dayNum} Alternative Trail`;
+    let activities = [];
+
+    if (feedbackLower.includes('relax') || feedbackLower.includes('chill') || feedbackLower.includes('beach')) {
+      theme = 'Coastal Relaxation & Sunset Leisure';
+      activities = [
+        { time: '10:00 AM', title: `Scenic Coastal Walk & Cafe Brunch in ${destination}`, description: 'Late morning stroll with iced coffees and artisanal breakfast.', location: `${destination} Coast`, estimatedCost: 400 },
+        { time: '03:00 PM', title: 'Ayurvedic Wellness & Spa Therapy', description: 'Rejuvenating herbal massage and steam relaxation session.', location: `${destination} Wellness Center`, estimatedCost: 1500 },
+        { time: '06:30 PM', title: 'Sunset Cocktails & Beachfront Acoustic Music', description: 'Watch the sun dip beneath the horizon with refreshing drinks.', location: `${destination} Sunset Shack`, estimatedCost: 800 }
+      ];
+    } else if (feedbackLower.includes('rain') || feedbackLower.includes('indoor') || feedbackLower.includes('museum')) {
+      theme = 'Indoor Heritage & Culinary Discovery';
+      activities = [
+        { time: '10:00 AM', title: `${destination} State Museum & Cultural Gallery`, description: 'Sheltered exploration of ancient artifacts, textiles, and local history.', location: `${destination} Central Museum`, estimatedCost: 200 },
+        { time: '02:30 PM', title: 'Regional Cooking Masterclass & Tasting', description: 'Hands-on indoor workshop preparing traditional authentic curries.', location: 'Local Culinary Studio', estimatedCost: 1200 },
+        { time: '07:00 PM', title: 'Artisanal Covered Market & Souvenir Shopping', description: 'Sheltered shopping arcade for spices, handicrafts, and teas.', location: `${destination} Covered Bazaar`, estimatedCost: 0 }
+      ];
+    } else {
+      theme = `Curated Hidden Gems & Cultural Immersion`;
+      activities = [
+        { time: '09:00 AM', title: `Heritage Old Quarter Walking Trail in ${destination}`, description: 'Guided stroll through historic colonial architecture and ancient streets.', location: `${destination} Old Town`, estimatedCost: 300 },
+        { time: '02:00 PM', title: 'Organic Spice & Botanical Plantation Visit', description: 'Aromatic garden walk followed by a traditional buffet lunch.', location: `${destination} Spice Garden`, estimatedCost: 700 },
+        { time: '07:30 PM', title: 'Evening Rooftop Dining with Panoramic Views', description: 'Dine under the stars with live classical music and regional dishes.', location: 'Rooftop Lounge', estimatedCost: 1200 }
+      ];
+    }
+
+    const regenerated = {
+      day: dayNum,
+      title: `Day ${dayNum}: ${theme}`,
+      theme,
+      activities,
+      meals: {
+        breakfast: 'Artisanal bakery and specialty local brew',
+        lunch: 'Traditional plantation or heritage cafe lunch',
+        dinner: 'Rooftop dinner overlooking the vibrant skyline'
+      },
+      stay: currentDay.stay || `${trip.travelStyle || 'Standard'} accommodation in ${destination}`
+    };
+
+    return {
+      success: true,
+      day: regenerated,
+      explanation: `Successfully customized Day ${dayNum} to emphasize ${theme}.`,
+      isDemoOutput: true,
+      provider: 'intelligent-local-regenerator'
+    };
+  }
 }
 
 module.exports = new TravelAgent();

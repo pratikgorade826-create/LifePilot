@@ -59,13 +59,63 @@ export const tripsAPI = {
   update: (id, data) => api.put(`/trips/${id}`, data),
   delete: (id) => api.delete(`/trips/${id}`),
   getReport: (id) => api.get(`/trips/${id}/report`),
+  join: (inviteCode) => api.post('/trips/join', { inviteCode }),
+  regenerateDay: (id, data) => api.post(`/trips/${id}/regenerate-day`, data),
+
+  // Smart Budget Optimizer
+  getBudget: (id) => api.get(`/trips/${id}/budget`),
+  optimizeBudget: (id, data) => api.post(`/trips/${id}/optimize-budget`, data),
+
+  // What-if Trip Simulator
+  createScenario: (id, data) => api.post(`/trips/${id}/scenarios`, data),
+  getScenarios: (id) => api.get(`/trips/${id}/scenarios`),
+  getOneScenario: (id, scenarioId) => api.get(`/trips/${id}/scenarios/${scenarioId}`),
+  compareScenarios: (id, scenarioIds = []) => api.post(`/trips/${id}/scenarios/compare`, { scenarioIds }),
+  applyScenario: (id, scenarioId) => api.post(`/trips/${id}/scenarios/${scenarioId}/apply`),
+  restoreOriginal: (id) => api.post(`/trips/${id}/scenarios/restore-original`),
+  deleteScenario: (id, scenarioId) => api.delete(`/trips/${id}/scenarios/${scenarioId}`),
+
+  // Group Collaboration & Invitations
+  generateInviteCode: (id) => api.post(`/trips/${id}/invitations`),
+  getMembers: (id) => api.get(`/trips/${id}/members`),
+  updateMemberRole: (id, memberId, role) => api.put(`/trips/${id}/members/${memberId}`, { role }),
+  removeMember: (id, memberId) => api.delete(`/trips/${id}/members/${memberId}`),
+
+  // Group Polls & Voting
+  createPoll: (id, data) => api.post(`/trips/${id}/polls`, data),
+  getPolls: (id) => api.get(`/trips/${id}/polls`),
+  votePoll: (id, pollId, optionIndex) => api.post(`/trips/${id}/polls/${pollId}/vote`, { optionIndex }),
+  closePoll: (id, pollId) => api.put(`/trips/${id}/polls/${pollId}/close`),
+
+  // Group Shared Expenses & Splitwise Settlements
+  addGroupExpense: (id, data) => api.post(`/trips/${id}/group-expenses`, data),
+  getGroupExpenses: (id) => api.get(`/trips/${id}/group-expenses`),
+  updateGroupExpense: (id, expenseId, data) => api.put(`/trips/${id}/group-expenses/${expenseId}`, data),
+  deleteGroupExpense: (id, expenseId) => api.delete(`/trips/${id}/group-expenses/${expenseId}`),
+  getSettlements: (id) => api.get(`/trips/${id}/settlements`),
+  settleExpenseDebt: (id, data) => api.post(`/trips/${id}/settlements/settle`, data),
+
+  // Collaborative Tasks & Activity Feed
+  createTask: (id, data) => api.post(`/trips/${id}/tasks`, data),
+  getTasks: (id) => api.get(`/trips/${id}/tasks`),
+  updateTask: (id, taskId, data) => api.put(`/trips/${id}/tasks/${taskId}`, data),
+  deleteTask: (id, taskId) => api.delete(`/trips/${id}/tasks/${taskId}`),
+  getActivityFeed: (id) => api.get(`/trips/${id}/activity`),
+
+  // Context-Aware AI Travel Companion Chat
+  companionChat: (id, message) => api.post(`/trips/${id}/assistant/chat`, { message }),
+  getCompanionHistory: (id) => api.get(`/trips/${id}/assistant/history`),
+  assistantCommand: (id, command) => api.post(`/trips/${id}/assistant/command`, { command }),
+  assistantApply: (id, proposedChanges) => api.post(`/trips/${id}/assistant/apply`, { proposedChanges }),
+
+  // Map & Feasibility
   checkFeasibility: (id) => api.post(`/trips/${id}/feasibility`),
   applyFeasibilityFix: (id, data) => api.post(`/trips/${id}/feasibility/apply`, data),
   getRoutes: (id) => api.get(`/trips/${id}/routes`),
   optimizeRoute: (id, data) => api.post(`/trips/${id}/routes/optimize`, data),
   modifyLocation: (id, data) => api.put(`/trips/${id}/activities/location`, data),
-  assistantCommand: (id, command) => api.post(`/trips/${id}/assistant/command`, { command }),
-  assistantApply: (id, proposedChanges) => api.post(`/trips/${id}/assistant/apply`, { proposedChanges }),
+
+  // Personal Expenses
   addExpense: (id, data) => api.post(`/trips/${id}/expenses`, data),
   getExpenses: (id) => api.get(`/trips/${id}/expenses`),
   updateExpense: (id, expenseId, data) => api.put(`/trips/${id}/expenses/${expenseId}`, data),

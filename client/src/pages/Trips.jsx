@@ -44,6 +44,12 @@ export const Trips = () => {
   const defaultDeparture = new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0];
   const defaultReturn = new Date(Date.now() + 86400000 * 12).toISOString().split('T')[0];
 
+  // Join Trip State
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
+  const [joinError, setJoinError] = useState('');
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -55,6 +61,10 @@ export const Trips = () => {
     travelersCount: 2,
     totalBudget: 40000,
     travelStyle: 'Standard',
+    transportPreference: 'Flights & Private Cabs',
+    accommodationPreference: 'Boutique Hotels & Resorts',
+    dietaryPreferences: 'No Restrictions',
+    specialRequirements: '',
     interests: ['Beaches', 'Food', 'Relaxation'],
     additionalPreferences: ''
   });
@@ -161,6 +171,10 @@ export const Trips = () => {
         travelersCount: formData.travelersCount,
         totalBudget: formData.totalBudget,
         travelStyle: formData.travelStyle,
+        transportPreference: formData.transportPreference,
+        accommodationPreference: formData.accommodationPreference,
+        dietaryPreferences: formData.dietaryPreferences,
+        specialRequirements: formData.specialRequirements,
         interests: formData.interests,
         additionalPreferences: formData.additionalPreferences
       });
@@ -201,6 +215,10 @@ export const Trips = () => {
         totalBudget: formData.totalBudget,
         budgetPerPerson: perPerson,
         travelStyle: formData.travelStyle,
+        transportPreference: formData.transportPreference,
+        accommodationPreference: formData.accommodationPreference,
+        dietaryPreferences: formData.dietaryPreferences,
+        specialRequirements: formData.specialRequirements,
         interests: formData.interests,
         additionalPreferences: formData.additionalPreferences,
         status: 'planned',
@@ -224,6 +242,31 @@ export const Trips = () => {
       setFormError(err.response?.data?.message || 'Failed to save trip. Please try again.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Join Group Trip with Invite Code
+  const handleJoinTrip = async (e) => {
+    e.preventDefault();
+    if (!joinCode || !joinCode.trim()) {
+      setJoinError('Please enter a valid trip invite code.');
+      return;
+    }
+
+    try {
+      setIsJoining(true);
+      setJoinError('');
+      const cleanCode = joinCode.trim().toUpperCase();
+      const res = await tripsAPI.join(cleanCode);
+      setShowJoinModal(false);
+      setJoinCode('');
+      await loadTrips();
+      navigate(`/trips/${res.data.trip._id}`);
+    } catch (err) {
+      console.error('Failed to join trip:', err);
+      setJoinError(err.response?.data?.message || 'Invalid or expired invite code. Please check with your group organizer.');
+    } finally {
+      setIsJoining(false);
     }
   };
 
@@ -291,17 +334,31 @@ export const Trips = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setModalStep(1);
-            setGeneratedTrip(null);
-            setFormError('');
-            setShowModal(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-500/20 transition self-start sm:self-auto"
-        >
-          <Sparkles size={16} /> Plan New Trip with AI
-        </button>
+        <div className="flex items-center gap-2.5 flex-wrap self-start sm:self-auto">
+          <button
+            onClick={() => {
+              setJoinError('');
+              setJoinCode('');
+              setShowJoinModal(true);
+            }}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-slate-800/90 hover:bg-slate-700/90 text-amber-300 border border-amber-500/30 transition shadow-sm"
+          >
+            <Users size={16} className="text-amber-400" />
+            <span>Join Group Trip</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setModalStep(1);
+              setGeneratedTrip(null);
+              setFormError('');
+              setShowModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-500/20 transition"
+          >
+            <Sparkles size={16} /> Plan New Trip with AI
+          </button>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
@@ -614,6 +671,69 @@ export const Trips = () => {
                   </div>
                 </div>
 
+                {/* Preferred Transport & Accommodation Preference */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1">Preferred Transport</label>
+                    <select
+                      value={formData.transportPreference}
+                      onChange={(e) => setFormData({ ...formData, transportPreference: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#0B0F19] border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="Flights & Private Cabs">Flights & Private Cabs</option>
+                      <option value="Train Journey & Local Auto">Train Journey & Local Auto</option>
+                      <option value="Self-Drive Rental Car / Roadtrip">Self-Drive Rental Car / Roadtrip</option>
+                      <option value="Public Transit & Walking">Public Transit & Walking</option>
+                      <option value="Scenic Ferry & Tourist Coaches">Scenic Ferry & Tourist Coaches</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1">Accommodation Preference</label>
+                    <select
+                      value={formData.accommodationPreference}
+                      onChange={(e) => setFormData({ ...formData, accommodationPreference: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#0B0F19] border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="Boutique Hotels & Resorts">Boutique Hotels & Resorts</option>
+                      <option value="4-Star & 5-Star Luxury Hotels">4-Star & 5-Star Luxury Hotels</option>
+                      <option value="Hostels & Budget Stays">Hostels & Budget Stays</option>
+                      <option value="Private Villas / Airbnb Homestays">Private Villas / Airbnb Homestays</option>
+                      <option value="Beachside Cottages & Eco-Lodges">Beachside Cottages & Eco-Lodges</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Dietary Preferences & Special Requirements */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1">Dietary Preferences</label>
+                    <select
+                      value={formData.dietaryPreferences}
+                      onChange={(e) => setFormData({ ...formData, dietaryPreferences: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#0B0F19] border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    >
+                      <option value="No Restrictions">No Restrictions (All Cuisines)</option>
+                      <option value="Pure Vegetarian">Pure Vegetarian</option>
+                      <option value="Vegan Only">Vegan Only</option>
+                      <option value="Halal Certified">Halal Certified</option>
+                      <option value="Jain (No Root Veggies)">Jain (No Root Veggies)</option>
+                      <option value="Gluten-Free & Healthy">Gluten-Free & Healthy</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-300 mb-1">Special Requirements</label>
+                    <input
+                      type="text"
+                      value={formData.specialRequirements}
+                      onChange={(e) => setFormData({ ...formData, specialRequirements: e.target.value })}
+                      placeholder="e.g. Wheelchair accessible, child-friendly, pet-friendly..."
+                      className="w-full px-3.5 py-2 bg-[#0B0F19] border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1.5">Interests (Select multiple)</label>
                   <div className="flex flex-wrap gap-2">
@@ -814,6 +934,80 @@ export const Trips = () => {
                 {deletingId === tripToDelete._id ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Join Group Trip Modal */}
+      {showJoinModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-[#111827] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <Users size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Join Group Trip</h3>
+                  <p className="text-xs text-slate-400">Enter invite code shared by the organizer</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowJoinModal(false);
+                  setJoinError('');
+                }}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {joinError && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
+                <span>{joinError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleJoinTrip} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Trip Invite Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. LPT-GOA26 or 6-character code"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  className="w-full px-3.5 py-2.5 bg-[#0B0F19] border border-slate-700 rounded-xl text-sm font-mono tracking-widest text-amber-300 placeholder-slate-600 focus:outline-none focus:border-amber-500"
+                />
+                <span className="text-[11px] text-slate-500 block mt-1">
+                  Ask the trip owner for the 6-character invite code or code from trip URL.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowJoinModal(false);
+                    setJoinError('');
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isJoining || !joinCode.trim()}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center gap-2 disabled:opacity-50 shadow-md shadow-amber-500/20"
+                >
+                  {isJoining ? <Loader2 size={14} className="animate-spin" /> : <Users size={14} />}
+                  {isJoining ? 'Joining Trip...' : 'Join Group Trip'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

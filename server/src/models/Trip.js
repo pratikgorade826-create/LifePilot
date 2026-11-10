@@ -152,6 +152,43 @@ const tripSchema = new mongoose.Schema({
   feasibilityReport: {
     type: mongoose.Schema.Types.Mixed,
     default: null
+  },
+  transportPreference: {
+    type: String,
+    default: ''
+  },
+  accommodationPreference: {
+    type: String,
+    default: ''
+  },
+  dietaryPreferences: {
+    type: String,
+    default: ''
+  },
+  specialRequirements: {
+    type: String,
+    default: ''
+  },
+  inviteCode: {
+    type: String,
+    index: true,
+    sparse: true
+  },
+  members: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String, default: '' },
+    email: { type: String, default: '' },
+    role: { type: String, enum: ['owner', 'editor', 'viewer'], default: 'editor' },
+    joinedAt: { type: Date, default: Date.now }
+  }],
+  backupItinerary: [dayScheduleSchema],
+  originalTripData: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
+  },
+  budgetOptimization: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
   }
 }, {
   timestamps: true

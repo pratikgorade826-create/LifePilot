@@ -51,13 +51,24 @@ import { Card } from '../components/common/Card';
 import { Badge } from '../components/common/Badge';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { TripRouteMap } from '../components/map/TripRouteMap';
+import { DayRegenerateModal } from '../components/travel/DayRegenerateModal';
+import { BudgetOptimizerView } from '../components/travel/BudgetOptimizerView';
+import { WhatIfSimulatorView } from '../components/travel/WhatIfSimulatorView';
+import { GroupCollaborationView } from '../components/travel/GroupCollaborationView';
+import { GroupPollsView } from '../components/travel/GroupPollsView';
+import { GroupExpensesView } from '../components/travel/GroupExpensesView';
+import { TripTasksView } from '../components/travel/TripTasksView';
+import { TravelCompanionView } from '../components/travel/TravelCompanionView';
+import { useAuthStore } from '../store/authStore';
 
 export const TripDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuthStore();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('itinerary'); // 'itinerary' | 'budget' | 'feasibility' | 'packing' | 'prep'
+  const [activeTab, setActiveTab] = useState('itinerary');
+  const [regeneratingDayNum, setRegeneratingDayNum] = useState(null);
   const [reportModal, setReportModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -1354,19 +1365,25 @@ export const TripDetails = () => {
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
         {[
-          { id: 'itinerary', label: `Day-wise Itinerary (${trip.itinerary?.length || 0} Days)` },
-          { id: 'assistant', label: 'AI Trip Assistant 💬', badge: assistantPreview ? 'Preview Ready' : null },
-          { id: 'map', label: 'Route Map & Navigation' },
-          { id: 'budget', label: 'Estimated Budget Breakdown' },
+          { id: 'itinerary', label: `Day-wise Itinerary (${trip.itinerary?.length || 0}D)` },
+          { id: 'companion', label: 'AI Travel Companion 💬' },
+          { id: 'map', label: 'Interactive Travel Map 🗺️' },
+          { id: 'budget_opt', label: 'Smart Budget Optimizer 💰' },
+          { id: 'simulator', label: 'What-If Trip Simulator 🔮' },
+          { id: 'group', label: `Group Members (${(trip.members?.length || 0) + 1}) 👥` },
+          { id: 'polls', label: 'Group Polls 🗳️' },
+          { id: 'group_expenses', label: 'Group Expenses 💳' },
+          { id: 'tasks_feed', label: 'Tasks & Activity Feed 📋' },
+          { id: 'budget', label: 'Cost Breakdown' },
           {
             id: 'expenses',
-            label: `Expense Tracker 💳 (${expenses.length})`,
+            label: `My Expense Log (${expenses.length})`,
             badge: expenseAnalytics?.status === 'EXCEEDED' ? 'Exceeded' : (expenseAnalytics?.status === 'WARNING_80' ? '80% Spent' : null),
             badgeColor: expenseAnalytics?.status === 'EXCEEDED' ? 'text-rose-400' : 'text-amber-400'
           },
           {
             id: 'feasibility',
-            label: `Feasibility & Pacing (${currentFeasibilityScore !== null && currentFeasibilityScore !== undefined ? `${currentFeasibilityScore}/100` : 'Analyze'})`,
+            label: `Pacing (${currentFeasibilityScore !== null && currentFeasibilityScore !== undefined ? `${currentFeasibilityScore}/100` : 'Analyze'})`,
             badgeColor: currentFeasibilityScore >= 85 ? 'text-emerald-400' : 'text-amber-400'
           },
           { id: 'packing', label: `Packing List (${packedCount}/${totalPackingCount})` },
@@ -1375,13 +1392,18 @@ export const TripDetails = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 ${
               activeTab === tab.id
                 ? 'bg-indigo-600 text-white shadow-sm'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            {tab.label}
+            <span>{tab.label}</span>
+            {tab.badge && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 ${tab.badgeColor || 'text-white'}`}>
+                {tab.badge}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -1401,6 +1423,16 @@ export const TripDetails = () => {
                     {day.theme && <p className="text-[11px] text-slate-400">{day.theme}</p>}
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setRegeneratingDayNum(day.day)}
+                  className="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition"
+                  title={`Regenerate Day ${day.day} with custom AI prompts`}
+                >
+                  <Sparkles size={13} />
+                  <span>Regenerate Day</span>
+                </button>
               </div>
 
               {/* Activities list */}
@@ -1464,16 +1496,44 @@ export const TripDetails = () => {
         </div>
       )}
 
-      {/* TAB: CONTEXT-AWARE AI TRIP ASSISTANT */}
-      {activeTab === 'assistant' && (
-        <div className="space-y-4">
-          {renderAssistantWidget()}
-        </div>
+      {/* TAB: AI TRAVEL COMPANION */}
+      {(activeTab === 'companion' || activeTab === 'assistant') && (
+        <TravelCompanionView trip={trip} onTripUpdated={setTrip} />
       )}
 
       {/* TAB: ROUTE MAP & NAVIGATION */}
       {activeTab === 'map' && (
         <TripRouteMap trip={trip} onTripUpdated={setTrip} />
+      )}
+
+      {/* TAB: SMART BUDGET OPTIMIZER */}
+      {activeTab === 'budget_opt' && (
+        <BudgetOptimizerView trip={trip} onTripUpdated={setTrip} />
+      )}
+
+      {/* TAB: WHAT-IF TRIP SIMULATOR */}
+      {activeTab === 'simulator' && (
+        <WhatIfSimulatorView trip={trip} onTripUpdated={setTrip} />
+      )}
+
+      {/* TAB: GROUP COLLABORATION */}
+      {activeTab === 'group' && (
+        <GroupCollaborationView trip={trip} currentUser={currentUser} onTripUpdated={setTrip} />
+      )}
+
+      {/* TAB: GROUP POLLS & VOTING */}
+      {activeTab === 'polls' && (
+        <GroupPollsView trip={trip} currentUser={currentUser} />
+      )}
+
+      {/* TAB: GROUP SHARED EXPENSES & SETTLEMENTS */}
+      {activeTab === 'group_expenses' && (
+        <GroupExpensesView trip={trip} currentUser={currentUser} />
+      )}
+
+      {/* TAB: TASKS & ACTIVITY FEED */}
+      {activeTab === 'tasks_feed' && (
+        <TripTasksView trip={trip} currentUser={currentUser} />
       )}
 
       {/* TAB 2: BUDGET BREAKDOWN */}
@@ -2253,6 +2313,25 @@ export const TripDetails = () => {
           </div>
         </div>
       )}
+      {/* DAY REGENERATE MODAL */}
+      <DayRegenerateModal
+        trip={trip}
+        dayNumber={regeneratingDayNum}
+        isOpen={Boolean(regeneratingDayNum)}
+        onClose={() => setRegeneratingDayNum(null)}
+        onDayRegenerated={async (newDay) => {
+          const updatedItinerary = (trip.itinerary || []).map((d) => (d.day === newDay.day ? newDay : d));
+          try {
+            const res = await tripsAPI.update(trip._id, { itinerary: updatedItinerary });
+            setTrip(res.data.trip || { ...trip, itinerary: updatedItinerary });
+            setFixSuccessMessage(`Day ${newDay.day} schedule updated and saved!`);
+          } catch (err) {
+            console.error('Failed to update trip with regenerated day:', err);
+            setTrip({ ...trip, itinerary: updatedItinerary });
+            setFixSuccessMessage(`Day ${newDay.day} schedule updated locally!`);
+          }
+        }}
+      />
     </div>
   );
 };
