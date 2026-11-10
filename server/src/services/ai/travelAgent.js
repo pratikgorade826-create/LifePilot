@@ -25,7 +25,7 @@ class TravelAgent {
           { role: 'user', content: userPrompt }
         ];
 
-        const res = await aiProvider.generateChat(messages, { temperature: 0.6 });
+        const res = await aiProvider.generateChat(messages, { temperature: 0.6, json: true });
         const parsed = aiProvider.safeParseJson(res.content);
 
         if (parsed && parsed.itinerary && parsed.itinerary.length > 0) {

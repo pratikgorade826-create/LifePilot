@@ -32,14 +32,23 @@ class Orchestrator {
         }
 
         // Detect destination keyword
-        let dest = 'Goa';
-        const commonDestinations = ['Goa', 'Manali', 'Kerala', 'Jaipur', 'Shimla', 'Kashmir', 'Ladakh', 'Dubai', 'Bali', 'Singapore', 'Paris'];
-        for (const cd of commonDestinations) {
-          if (new RegExp(`\\b${cd}\\b`, 'i').test(message)) {
-            dest = cd;
-            break;
+        let dest = classification.extractedEntities?.destination;
+        if (!dest) {
+          const commonDestinations = ['Goa', 'Hyderabad', 'Manali', 'Kerala', 'Jaipur', 'Shimla', 'Kashmir', 'Ladakh', 'Dubai', 'Bali', 'Singapore', 'Paris', 'Bangalore', 'Delhi', 'Mumbai', 'Ooty'];
+          for (const cd of commonDestinations) {
+            if (new RegExp(`\\b${cd}\\b`, 'i').test(message)) {
+              dest = cd;
+              break;
+            }
           }
         }
+        if (!dest) {
+          const toMatch = message.match(/(?:to|visit|in)\s+([A-Za-z]+)/i);
+          if (toMatch && !['a', 'the', 'plan', 'trip', 'me', 'our'].includes(toMatch[1].toLowerCase())) {
+            dest = toMatch[1].charAt(0).toUpperCase() + toMatch[1].slice(1);
+          }
+        }
+        if (!dest) dest = 'Goa';
 
         const tripResult = await travelAgent.planTrip({
           prompt: message,
