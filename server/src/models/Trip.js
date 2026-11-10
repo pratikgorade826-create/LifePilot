@@ -1,5 +1,31 @@
 const mongoose = require('mongoose');
 
+const expenseSchema = new mongoose.Schema({
+  category: {
+    type: String,
+    enum: ['Transportation', 'Accommodation', 'Food', 'Activities', 'Miscellaneous'],
+    required: [true, 'Expense category is required']
+  },
+  amount: {
+    type: Number,
+    required: [true, 'Expense amount is required'],
+    min: [0, 'Expense amount must be non-negative']
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  expenseDate: {
+    type: Date,
+    default: Date.now
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const dayScheduleSchema = new mongoose.Schema({
   day: { type: Number, required: true },
   title: { type: String, default: '' },
@@ -48,6 +74,10 @@ const tripSchema = new mongoose.Schema({
   returnDate: {
     type: Date,
     required: true
+  },
+  durationDays: {
+    type: Number,
+    default: 5
   },
   travelersCount: {
     type: Number,
@@ -110,9 +140,18 @@ const tripSchema = new mongoose.Schema({
     dueDate: { type: Date },
     checked: { type: Boolean, default: false }
   }],
+  actualExpenses: [expenseSchema],
   isAiGenerated: {
     type: Boolean,
     default: true
+  },
+  feasibilityScore: {
+    type: Number,
+    default: null
+  },
+  feasibilityReport: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
   }
 }, {
   timestamps: true

@@ -6,8 +6,6 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 module.exports = {
   PORT: process.env.PORT || 5000,
   NODE_ENV: process.env.NODE_ENV || 'development',
-  DB_MODE: process.env.DB_MODE || 'auto', // 'sqlite' | 'mongodb' | 'auto'
-  SQLITE_PATH: process.env.SQLITE_PATH || path.join(__dirname, '../../data/lifepilot.sqlite3'),
   MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/lifepilot',
   JWT_SECRET: process.env.JWT_SECRET || 'lifepilot_super_secret_jwt_key_hackathon_2026',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',

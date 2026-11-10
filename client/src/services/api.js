@@ -28,6 +28,7 @@ api.interceptors.response.use(
       if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
         localStorage.removeItem('lifepilot_token');
         localStorage.removeItem('lifepilot_user');
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
@@ -57,7 +58,18 @@ export const tripsAPI = {
   getOne: (id) => api.get(`/trips/${id}`),
   update: (id, data) => api.put(`/trips/${id}`, data),
   delete: (id) => api.delete(`/trips/${id}`),
-  getReport: (id) => api.get(`/trips/${id}/report`)
+  getReport: (id) => api.get(`/trips/${id}/report`),
+  checkFeasibility: (id) => api.post(`/trips/${id}/feasibility`),
+  applyFeasibilityFix: (id, data) => api.post(`/trips/${id}/feasibility/apply`, data),
+  getRoutes: (id) => api.get(`/trips/${id}/routes`),
+  optimizeRoute: (id, data) => api.post(`/trips/${id}/routes/optimize`, data),
+  modifyLocation: (id, data) => api.put(`/trips/${id}/activities/location`, data),
+  assistantCommand: (id, command) => api.post(`/trips/${id}/assistant/command`, { command }),
+  assistantApply: (id, proposedChanges) => api.post(`/trips/${id}/assistant/apply`, { proposedChanges }),
+  addExpense: (id, data) => api.post(`/trips/${id}/expenses`, data),
+  getExpenses: (id) => api.get(`/trips/${id}/expenses`),
+  updateExpense: (id, expenseId, data) => api.put(`/trips/${id}/expenses/${expenseId}`, data),
+  deleteExpense: (id, expenseId) => api.delete(`/trips/${id}/expenses/${expenseId}`)
 };
 
 export const projectsAPI = {

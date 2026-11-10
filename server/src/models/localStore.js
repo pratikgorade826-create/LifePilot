@@ -5,7 +5,6 @@ const siftMod = require('sift');
 const sift = siftMod.default || siftMod;
 const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
-const { getSQLiteDB } = require('../config/sqlite');
 
 const DATA_DIR = path.join(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'local_db.json');
@@ -186,54 +185,18 @@ class LocalStore {
 
   load() {
     try {
-      const sqlite = getSQLiteDB();
-      if (sqlite) {
-        const rows = sqlite.prepare('SELECT collection_name, id, data FROM lifepilot_documents').all();
-        if (rows && rows.length > 0) {
-          rows.forEach(r => {
-            const col = r.collection_name.toLowerCase();
-            if (!this.data[col]) this.data[col] = [];
-            try {
-              this.data[col].push(JSON.parse(r.data));
-            } catch (e) {}
-          });
-          console.log(`[SQLite3] Loaded ${rows.length} documents from SQLite3 database.`);
-          return;
-        }
-      }
-
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
         this.data = { ...this.data, ...parsed };
       } else {
         this.seedInitial();
+        this.persist();
       }
-
-      this.syncToSQLite();
-      this.persist();
     } catch (err) {
-      console.warn('[LocalStore] Error reading local store, reinitializing:', err.message);
+      console.warn('[LocalStore] Error reading local_db.json, reinitializing:', err.message);
       this.seedInitial();
-      this.syncToSQLite();
       this.persist();
-    }
-  }
-
-  syncToSQLite() {
-    try {
-      const sqlite = getSQLiteDB();
-      if (!sqlite) return;
-      const stmt = sqlite.prepare('INSERT OR REPLACE INTO lifepilot_documents (collection_name, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
-      for (const [col, items] of Object.entries(this.data)) {
-        if (Array.isArray(items)) {
-          for (const item of items) {
-            stmt.run(col.toLowerCase(), item._id, JSON.stringify(item), item.createdAt || new Date().toISOString(), item.updatedAt || new Date().toISOString());
-          }
-        }
-      }
-    } catch (err) {
-      console.warn('[SQLite3] Sync error:', err.message);
     }
   }
 
@@ -273,18 +236,70 @@ class LocalStore {
       {
         _id: '663e30000000000000000001',
         ownerId: demoId,
-        title: '5-Day Goa Beach & Heritage Trip',
+        name: '5-Day Goa Beach & Heritage Trip',
+        startingLocation: 'Mumbai',
         destination: 'Goa, India',
+        departureDate: new Date(Date.now() + 86400000 * 5).toISOString(),
+        returnDate: new Date(Date.now() + 86400000 * 10).toISOString(),
         durationDays: 5,
         travelersCount: 4,
         totalBudget: 60000,
-        status: 'Planning',
+        budgetPerPerson: 15000,
+        currency: 'INR',
+        travelStyle: 'Standard',
+        interests: ['Beaches', 'Food', 'Culture'],
+        status: 'planned',
+        overview: 'A scenic 5-day coastal getaway to Goa exploring sandy beaches, Portuguese heritage architecture, and coastal seafood thalis.',
         itinerary: [
-          { day: 1, theme: 'Arrival & North Goa Beaches', activities: ['Check-in', 'Calangute sunset', 'Seafood dinner'] },
-          { day: 2, theme: 'Water Sports & Fort Aguada', activities: ['Fort Aguada exploration', 'Parasailing at Baga'] }
+          {
+            day: 1,
+            title: 'Arrival & North Goa Beaches',
+            theme: 'Coastal Sunset & Relaxation',
+            activities: [
+              { time: '11:00 AM', title: 'Check-in to Boutique Resort', description: 'Arrive from Mumbai and settle into accommodation.', location: 'Calangute, North Goa', estimatedCost: 0 },
+              { time: '04:30 PM', title: 'Calangute & Baga Beach Stroll', description: 'Watch the sunset and enjoy beachside shacks.', location: 'Baga Beach', estimatedCost: 1000 },
+              { time: '08:00 PM', title: 'Goan Seafood Dinner', description: 'Traditional Goan fish curry and local specialties.', location: 'Brittos, Baga', estimatedCost: 2500 }
+            ],
+            meals: { breakfast: 'In-transit snacks', lunch: 'Beach shack snacks & coconut water', dinner: 'Brittos Seafood Restaurant' },
+            stay: 'Standard boutique hotel near Baga Beach'
+          },
+          {
+            day: 2,
+            title: 'Heritage Forts & Water Sports',
+            theme: 'History & Adventure',
+            activities: [
+              { time: '09:30 AM', title: 'Explore Fort Aguada & Lighthouse', description: 'Historic 17th-century Portuguese fortress with panoramic sea views.', location: 'Sinquerim', estimatedCost: 400 },
+              { time: '02:00 PM', title: 'Water Sports Experience', description: 'Parasailing and jet ski ride with certified instructors.', location: 'Calangute Beach', estimatedCost: 3500 },
+              { time: '07:30 PM', title: 'Anjuna Night Market Walk', description: 'Vibrant local crafts, live music, and street food.', location: 'Anjuna', estimatedCost: 1500 }
+            ],
+            meals: { breakfast: 'Continental buffet at resort', lunch: 'Cafe Chocolatti, Candolim', dinner: 'Curlies Beach Shack, Anjuna' },
+            stay: 'Standard boutique hotel near Baga Beach'
+          }
         ],
-        budgetBreakdown: { stay: 24000, travel: 12000, food: 14000, activities: 7000, misc: 3000, totalEstimated: 60000, budgetPerPerson: 15000 },
-        createdAt: new Date().toISOString()
+        budgetBreakdown: {
+          transportation: 12000,
+          accommodation: 24000,
+          food: 14000,
+          activities: 7000,
+          miscellaneous: 3000,
+          totalEstimated: 60000,
+          budgetPerPerson: 15000,
+          isEstimateNotice: 'All figures are reasonable market approximations for planning purposes; real-time booking prices vary.'
+        },
+        packingChecklist: [
+          { category: 'Clothing', item: 'Light cotton shirts and shorts', checked: true },
+          { category: 'Essentials', item: 'Valid ID proofs & travel tickets', checked: true },
+          { category: 'Health & Toiletries', item: 'Sunscreen (SPF 50) & shades', checked: false },
+          { category: 'Electronics', item: 'Power bank & waterproof phone pouch', checked: false }
+        ],
+        preparationChecklist: [
+          { task: 'Confirm flight/train tickets from Mumbai to Goa', checked: true },
+          { task: 'Reserve airport transfer / taxi service', checked: false },
+          { task: 'Confirm resort check-in timing', checked: false }
+        ],
+        isAiGenerated: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
     ];
 
@@ -373,15 +388,6 @@ class LocalStore {
     } else {
       list.push({ ...docData });
     }
-
-    try {
-      const sqlite = getSQLiteDB();
-      if (sqlite) {
-        const stmt = sqlite.prepare('INSERT OR REPLACE INTO lifepilot_documents (collection_name, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
-        stmt.run(collectionName.toLowerCase(), docData._id, JSON.stringify(docData), docData.createdAt || new Date().toISOString(), docData.updatedAt || new Date().toISOString());
-      }
-    } catch (e) {}
-
     this.persist();
   }
 
@@ -437,13 +443,6 @@ class LocalStore {
         data.updatedAt = new Date().toISOString();
 
         self.getCollection(colName).push(data);
-        try {
-          const sqlite = getSQLiteDB();
-          if (sqlite) {
-            const stmt = sqlite.prepare('INSERT OR REPLACE INTO lifepilot_documents (collection_name, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
-            stmt.run(colName, data._id, JSON.stringify(data), data.createdAt, data.updatedAt);
-          }
-        } catch (e) {}
         self.persist();
 
         return new LocalDoc(data, colName, self);
@@ -477,12 +476,6 @@ class LocalStore {
         const index = list.findIndex(filterFn);
         if (index === -1) return null;
         const [removed] = list.splice(index, 1);
-        try {
-          const sqlite = getSQLiteDB();
-          if (sqlite) {
-            sqlite.prepare('DELETE FROM lifepilot_documents WHERE collection_name = ? AND id = ?').run(colName, removed._id);
-          }
-        } catch (e) {}
         self.persist();
         return new LocalDoc(removed, colName, self);
       },
@@ -507,7 +500,6 @@ class LocalStore {
           if (filterFn(d)) {
             Object.assign(d, updateData);
             d.updatedAt = new Date().toISOString();
-            self.saveDoc(colName, d);
             modifiedCount++;
           }
         });
@@ -520,20 +512,8 @@ class LocalStore {
         const list = self.getCollection(colName);
         const filterFn = sift(normalizeQuery(query));
         const initialLen = list.length;
-        const toDelete = list.filter(filterFn);
         const remaining = list.filter(d => !filterFn(d));
         self.data[colName] = remaining;
-
-        try {
-          const sqlite = getSQLiteDB();
-          if (sqlite) {
-            const stmt = sqlite.prepare('DELETE FROM lifepilot_documents WHERE collection_name = ? AND id = ?');
-            for (const item of toDelete) {
-              stmt.run(colName, item._id);
-            }
-          }
-        } catch (e) {}
-
         const deletedCount = initialLen - remaining.length;
         if (deletedCount > 0) self.persist();
         return { deletedCount, acknowledged: true };

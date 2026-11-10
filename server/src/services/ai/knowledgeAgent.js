@@ -12,7 +12,7 @@ class KnowledgeAgent {
           { role: 'user', content: `Document: "${documentName}"\nExtracted Content:\n${textSample.slice(0, 10000)}` }
         ];
 
-        const res = await aiProvider.generateChat(messages, { temperature: 0.3, json: true });
+        const res = await aiProvider.generateChat(messages, { temperature: 0.3 });
         const parsed = aiProvider.safeParseJson(res.content);
 
         if (parsed && (parsed.shortSummary || parsed.importantPoints)) {
