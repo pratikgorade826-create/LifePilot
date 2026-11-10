@@ -63,11 +63,17 @@ class IntentClassifier {
       return { intent: 'GENERAL', confidence: 0.5 };
     }
 
+    // High confidence keyword match returns instantly without adding network latency
+    const heuristic = this.heuristicClassify(text);
+    if (heuristic.confidence >= 0.85) {
+      return heuristic;
+    }
+
     const activeProvider = aiProvider.getActiveProvider();
 
-    // If demo mode or heuristic is very confident, we can combine
+    // If demo mode, use heuristic
     if (activeProvider === 'demo') {
-      return this.heuristicClassify(text);
+      return heuristic;
     }
 
     try {
@@ -76,7 +82,7 @@ class IntentClassifier {
         { role: 'user', content: text }
       ];
 
-      const res = await aiProvider.generateChat(messages, { temperature: 0.1 });
+      const res = await aiProvider.generateChat(messages, { temperature: 0.1, json: true });
       const parsed = aiProvider.safeParseJson(res.content);
 
       if (parsed && parsed.intent) {

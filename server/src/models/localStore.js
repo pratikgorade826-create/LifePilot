@@ -5,6 +5,7 @@ const siftMod = require('sift');
 const sift = siftMod.default || siftMod;
 const { ObjectId } = require('bson');
 const mongoose = require('mongoose');
+const { getSQLiteDB } = require('../config/sqlite');
 
 const DATA_DIR = path.join(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'local_db.json');
@@ -185,18 +186,54 @@ class LocalStore {
 
   load() {
     try {
+      const sqlite = getSQLiteDB();
+      if (sqlite) {
+        const rows = sqlite.prepare('SELECT collection_name, id, data FROM lifepilot_documents').all();
+        if (rows && rows.length > 0) {
+          rows.forEach(r => {
+            const col = r.collection_name.toLowerCase();
+            if (!this.data[col]) this.data[col] = [];
+            try {
+              this.data[col].push(JSON.parse(r.data));
+            } catch (e) {}
+          });
+          console.log(`[SQLite3] Loaded ${rows.length} documents from SQLite3 database.`);
+          return;
+        }
+      }
+
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
         this.data = { ...this.data, ...parsed };
       } else {
         this.seedInitial();
-        this.persist();
+      }
+
+      this.syncToSQLite();
+      this.persist();
+    } catch (err) {
+      console.warn('[LocalStore] Error reading local store, reinitializing:', err.message);
+      this.seedInitial();
+      this.syncToSQLite();
+      this.persist();
+    }
+  }
+
+  syncToSQLite() {
+    try {
+      const sqlite = getSQLiteDB();
+      if (!sqlite) return;
+      const stmt = sqlite.prepare('INSERT OR REPLACE INTO lifepilot_documents (collection_name, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
+      for (const [col, items] of Object.entries(this.data)) {
+        if (Array.isArray(items)) {
+          for (const item of items) {
+            stmt.run(col.toLowerCase(), item._id, JSON.stringify(item), item.createdAt || new Date().toISOString(), item.updatedAt || new Date().toISOString());
+          }
+        }
       }
     } catch (err) {
-      console.warn('[LocalStore] Error reading local_db.json, reinitializing:', err.message);
-      this.seedInitial();
-      this.persist();
+      console.warn('[SQLite3] Sync error:', err.message);
     }
   }
 
@@ -336,6 +373,15 @@ class LocalStore {
     } else {
       list.push({ ...docData });
     }
+
+    try {
+      const sqlite = getSQLiteDB();
+      if (sqlite) {
+        const stmt = sqlite.prepare('INSERT OR REPLACE INTO lifepilot_documents (collection_name, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
+        stmt.run(collectionName.toLowerCase(), docData._id, JSON.stringify(docData), docData.createdAt || new Date().toISOString(), docData.updatedAt || new Date().toISOString());
+      }
+    } catch (e) {}
+
     this.persist();
   }
 
@@ -391,6 +437,13 @@ class LocalStore {
         data.updatedAt = new Date().toISOString();
 
         self.getCollection(colName).push(data);
+        try {
+          const sqlite = getSQLiteDB();
+          if (sqlite) {
+            const stmt = sqlite.prepare('INSERT OR REPLACE INTO lifepilot_documents (collection_name, id, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)');
+            stmt.run(colName, data._id, JSON.stringify(data), data.createdAt, data.updatedAt);
+          }
+        } catch (e) {}
         self.persist();
 
         return new LocalDoc(data, colName, self);
@@ -424,6 +477,12 @@ class LocalStore {
         const index = list.findIndex(filterFn);
         if (index === -1) return null;
         const [removed] = list.splice(index, 1);
+        try {
+          const sqlite = getSQLiteDB();
+          if (sqlite) {
+            sqlite.prepare('DELETE FROM lifepilot_documents WHERE collection_name = ? AND id = ?').run(colName, removed._id);
+          }
+        } catch (e) {}
         self.persist();
         return new LocalDoc(removed, colName, self);
       },
@@ -448,6 +507,7 @@ class LocalStore {
           if (filterFn(d)) {
             Object.assign(d, updateData);
             d.updatedAt = new Date().toISOString();
+            self.saveDoc(colName, d);
             modifiedCount++;
           }
         });
@@ -460,8 +520,20 @@ class LocalStore {
         const list = self.getCollection(colName);
         const filterFn = sift(normalizeQuery(query));
         const initialLen = list.length;
+        const toDelete = list.filter(filterFn);
         const remaining = list.filter(d => !filterFn(d));
         self.data[colName] = remaining;
+
+        try {
+          const sqlite = getSQLiteDB();
+          if (sqlite) {
+            const stmt = sqlite.prepare('DELETE FROM lifepilot_documents WHERE collection_name = ? AND id = ?');
+            for (const item of toDelete) {
+              stmt.run(colName, item._id);
+            }
+          }
+        } catch (e) {}
+
         const deletedCount = initialLen - remaining.length;
         if (deletedCount > 0) self.persist();
         return { deletedCount, acknowledged: true };
