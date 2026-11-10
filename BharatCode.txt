@@ -1,0 +1,32 @@
+PROJECT NAME: LifePilot AI
+TAGLINE: Think Less. Organize Better. Get Things Done.
+CATEGORY: Everyday Assistance
+
+PROJECT DESCRIPTION:
+LifePilot AI is an intelligent personal AI assistant that helps users organize everyday activities through a unified platform.
+
+CORE FEATURES:
+- Smart Trip Planner – Generates travel itineraries, estimated budgets and preparation checklists.
+- AI Project Organizer – Converts ideas into project roadmaps, milestones and actionable tasks.
+- Personal Knowledge Hub – Analyzes uploaded documents, generates summaries and answers questions using document context.
+- Unified AI Assistant – Uses BharatCode API to understand user intent and coordinate specialized AI agents.
+
+TECHNOLOGY STACK:
+Frontend: React.js, Vite, Tailwind CSS
+Backend: Node.js, Express.js
+Database: MongoDB Atlas
+AI Provider: BharatCode API
+Authentication: JWT and bcryptjs
+
+GITHUB REPOSITORY:
+https://github.com/pratikgorade826-create/LifePilot
+
+TEAM MEMBERS:
+1. Pratik Gorade
+2. Avnish Choudhari
+3. Aditya Somase
+4. Aneesh Pande
+5. Yash Salunke
+
+DEMO URL:
+[Insert deployed application URL when available]

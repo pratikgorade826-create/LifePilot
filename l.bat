@@ -7,43 +7,63 @@ echo               Launching LifePilot AI
 echo ========================================================
 echo.
 
+:: 1. Ensure Node.js & npm are reachable in PATH
+where node >nul 2>&1
+if errorlevel 1 (
+    if exist "C:\Users\Pratik\Downloads\node-v24.21.0-win-x64\node-v24.21.0-win-x64" (
+        set "PATH=C:\Users\Pratik\Downloads\node-v24.21.0-win-x64\node-v24.21.0-win-x64;%PATH%"
+    )
+)
+
+:: 2. Auto-initialize environment variables if missing
+if not exist "%~dp0server\.env" (
+    copy "%~dp0server\.env.example" "%~dp0server\.env" >nul 2>&1
+)
+if not exist "%~dp0client\.env" (
+    copy "%~dp0client\.env.example" "%~dp0client\.env" >nul 2>&1
+)
+
+:: 3. Ensure required runtime directories exist
+if not exist "%~dp0server\uploads" mkdir "%~dp0server\uploads" >nul 2>&1
+if not exist "%~dp0server\data" mkdir "%~dp0server\data" >nul 2>&1
+
+:: 4. Verify/download server dependencies if not present
 if not exist "%~dp0server\node_modules" (
-    echo [1/3] Installing server dependencies...
+    echo [*] Installing backend dependencies...
     cd /d "%~dp0server" && call npm install
     cd /d "%~dp0"
 )
 
+:: 5. Verify/download client dependencies if not present
 if not exist "%~dp0client\node_modules" (
-    echo [2/3] Installing client dependencies...
+    echo [*] Installing frontend dependencies...
     cd /d "%~dp0client" && call npm install
     cd /d "%~dp0"
 )
 
-echo [*] Attempting local MongoDB service startup if present...
+:: 6. Optional local MongoDB service start
 net start MongoDB >nul 2>&1
 
-echo [*] Freeing ports 5000 and 5173 if in use...
+:: 7. Free ports 5000 and 5173 to avoid EADDRINUSE conflicts
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5173 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
 
-echo [*] Starting Backend Server (Port 5000)...
-start "LifePilot Backend" cmd /k "cd /d "%~dp0server" && npm run dev"
+:: 8. Launch backend server in the background (minimized)
+echo [*] Starting Backend Server...
+start /min "LifePilot Backend" cmd /c "cd /d "%~dp0server" && npm run dev"
 
-echo [*] Starting Frontend Client (Port 5173)...
-start "LifePilot Frontend" cmd /k "cd /d "%~dp0client" && npm run dev"
+:: 9. Launch frontend client in the background (minimized, no terminal popup)
+echo [*] Starting Frontend Server...
+start /min "LifePilot Frontend" cmd /c "cd /d "%~dp0client" && npm run dev"
 
-echo.
-echo [*] Waiting for services to initialize...
-timeout /t 3 >nul
-
-echo [*] Opening application in browser...
-start http://localhost:5173
+:: 10. Wait for Vite server to become active and pop open the browser automatically
+echo [*] Waiting for app to be ready...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ready = $false; for ($i=0; $i -lt 30; $i++) { try { $r = Invoke-WebRequest -Uri 'http://localhost:5173' -UseBasicParsing -TimeoutSec 1; if ($r.StatusCode -eq 200) { $ready = $true; break } } catch {}; Start-Sleep -Milliseconds 400 }; Start-Process 'http://localhost:5173'"
 
 echo.
 echo ========================================================
-echo  LifePilot AI is running!
-echo  - Frontend : http://localhost:5173
-echo  - Backend  : http://localhost:5000
+echo  🚀 LifePilot AI is open in your browser!
+echo  - URL: http://localhost:5173
+echo  - Demo login: demo@lifepilot.ai / demopass123
 echo ========================================================
 echo.
-

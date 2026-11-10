@@ -9,26 +9,32 @@ export default {
     extend: {
       colors: {
         background: {
-          DEFAULT: '#0B0F19',
-          card: '#111827',
-          elevated: '#1F2937',
-          subtle: '#151D30',
+          DEFAULT: '#feffdf',
+          card: '#ffe79a',
+          elevated: '#ffd875',
+          subtle: '#fff9cf',
         },
         primary: {
-          50: '#EEF2FF',
-          100: '#E0E7FF',
-          400: '#818CF8',
-          500: '#6366F1',
-          600: '#4F46E5',
-          700: '#4338CA',
+          50: '#fff9ed',
+          100: '#ffefd5',
+          400: '#ffbc73',
+          500: '#ffa952',
+          600: '#e58e39',
+          700: '#cc7320',
         },
         accent: {
-          violet: '#8B5CF6',
-          blue: '#3B82F6',
-          cyan: '#06B6D4',
+          violet: '#ffa952',
+          blue: '#ffa952',
+          cyan: '#ffa952',
           emerald: '#10B981',
-          amber: '#F59E0B',
-          rose: '#F43F5E'
+          amber: '#ffa952',
+          rose: '#ef5a5a'
+        },
+        palette: {
+          first: '#feffdf',
+          second: '#ffe79a',
+          third: '#ffa952',
+          fourth: '#ef5a5a'
         }
       },
       fontFamily: {
